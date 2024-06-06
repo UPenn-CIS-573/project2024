@@ -30,8 +30,30 @@ public class UserInterface {
 				System.out.println("Enter the fund number to see more information.");
 			}
 			System.out.println("Enter 0 to create a new fund");
-			int option = in.nextInt();
-			in.nextLine();
+			
+			String input = in.nextLine();
+			if (input.equals("quit") || input.equals("q")) {
+				System.out.println("Goodbye!");
+				break;
+			}
+
+			// int option = in.nextInt();
+			// in.nextLine();
+			
+			// invalid number
+			int option = -1;
+			try {
+				option = Integer.parseInt(input);
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Invalid input. Please enter a number.");
+				continue;
+			}
+			if (option > org.getFunds().size() || option < 0) {
+				System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+				continue;
+			}
+
 			if (option == 0) {
 				createFund(); 
 			}
