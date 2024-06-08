@@ -65,16 +65,41 @@ public class UserInterface {
 	}
 	
 	public void createFund() {
+
+		// Modify this method so that it rejects any blank fund name or description, 
+		// or a negative value for the fund target, and gracefully handles any non-numeric input for the fund target. 
+		// In all cases, it should re-prompt the user to enter the value until they enter something valid. 
+		// It should not be possible for the user to crash the program by entering invalid inputs at the prompts.
+
 		
 		System.out.print("Enter the fund name: ");
-		String name = in.nextLine().trim();
+		// String name = in.nextLine().trim();
+		String name = "";
+		while (name.trim().equals("")) {
+			name = in.nextLine().trim();
+			if (name.trim().equals("")) {
+				System.out.println("Fund name cannot be blank.");
+			}
+		}
 		
 		System.out.print("Enter the fund description: ");
 		String description = in.nextLine().trim();
 		
 		System.out.print("Enter the fund target: ");
-		long target = in.nextInt();
-		in.nextLine();
+		// long target = in.nextInt();
+		// in.nextLine();
+		long target = -1;
+		while (target < 0) {
+			try {
+				target = Long.parseLong(in.nextLine());
+				if (target < 0) {
+					System.out.println("Fund target cannot be negative.");
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Invalid input. Please enter a number.");
+			}
+		}
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
