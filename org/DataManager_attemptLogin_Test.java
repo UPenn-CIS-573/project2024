@@ -14,7 +14,7 @@ public class DataManager_attemptLogin_Test {
                 return "{\"status\":\"success\",\"data\":{" +
                         "\"_id\":\"12345\"," +
                         "\"name\":\"test\"," +
-                        "\"description\":\"This is a description\", " +
+                        "\"description\":\"test description\", " +
                         "\"funds\":" +
                         "[{\"_id\":\"12345\",\"name\":\"test2\",\"description\":\"test2\",\"target\":21203," +
                         "\"donations\":" +
@@ -29,7 +29,8 @@ public class DataManager_attemptLogin_Test {
         assertNotNull(o);
        assertEquals("12345", o.getId());
        assertEquals("test", o.getName());
-       assertEquals("12345", f.getId());
+        assertEquals("test description", o.getDescription());
+        assertEquals("12345", f.getId());
        assertEquals("test2", f.getName());
        assertEquals("test2", f.getDescription());
        assertEquals(21203, f.getTarget());
