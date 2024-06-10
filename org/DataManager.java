@@ -30,6 +30,11 @@ public class DataManager {
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
 
+			// connection fails
+			if (response == null) {
+				throw new IllegalStateException("Response is null");
+			}
+
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
@@ -39,7 +44,7 @@ public class DataManager {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
 				String name = (String)data.get("name");
-				String description = (String)data.get("descrption");
+				String description = (String)data.get("description");
 				Organization org = new Organization(fundId, name, description);
 
 				JSONArray funds = (JSONArray)data.get("funds");
@@ -74,6 +79,10 @@ public class DataManager {
 				return org;
 			}
 			else return null;
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
