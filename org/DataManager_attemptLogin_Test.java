@@ -68,7 +68,15 @@ public class DataManager_attemptLogin_Test {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
-                throw new IllegalArgumentException("Some errors occurred.");
+                return "{\"status\":\"success\",\"data\":{" +
+                        "\"_id\":\"12345\"," +
+                        "\"name\":\"test\"," +
+                        "\"description\":\"This is a description\", " +
+                        "\"funds\":" +
+                        "[{\"_id\":\"12345\",\"name\":\"test2\",\"description\":\"test2\",\"target\":21203," +
+                        "\"donations\":" +
+                        "[{\"contributor\":\"232\",\"amount\":68000,\"date\":\"2024-06-09\"}]}]}}";
+
             }
         });
 
@@ -81,7 +89,15 @@ public class DataManager_attemptLogin_Test {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
-                throw new IllegalArgumentException("Some errors occurred.");
+                return "{\"status\":\"success\",\"data\":{" +
+                        "\"_id\":\"12345\"," +
+                        "\"name\":\"test\"," +
+                        "\"description\":\"This is a description\", " +
+                        "\"funds\":" +
+                        "[{\"_id\":\"12345\",\"name\":\"test2\",\"description\":\"test2\",\"target\":21203," +
+                        "\"donations\":" +
+                        "[{\"contributor\":\"232\",\"amount\":68000,\"date\":\"2024-06-09\"}]}]}}";
+
             }
         });
 
