@@ -37,5 +37,42 @@ public class DataManager_createFund_Test {
 		assertEquals(10000, f.getTarget());
 		
 	}
+	@Test
+	public void testNonSuccessfulStatusField() {
+
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				return "{\"status\":\"something unexpected happened\"}";
+			}
+			
+		});
+		
+		
+		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+		
+		assertNull(f);
+		
+	}
+	@Test
+	public void testEmptyResponse() {
+
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				return "";
+			}
+			
+		});
+		
+		
+		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+		
+		assertNull(f);
+		
+	}
+
 
 }
