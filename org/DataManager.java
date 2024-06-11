@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -66,7 +68,7 @@ public class DataManager {
 						String contributorId = (String)donation.get("contributor");
 						String contributorName = this.getContributorName(contributorId);
 						long amount = (Long)donation.get("amount");
-						String date = (String)donation.get("date");
+						String date = parseDateFormat((String)donation.get("date"));
 						donationList.add(new Donation(fundId, contributorName, amount, date));
 					}
 
@@ -159,5 +161,17 @@ public class DataManager {
 		}	
 	}
 
+	public String parseDateFormat(String date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		Date d = null;
+		try {
+			d = sdf.parse(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		sdf = new SimpleDateFormat("MMMM dd, yyyy");
+		return sdf.format(d);
+	}
 
 }
