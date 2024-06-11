@@ -72,12 +72,16 @@ public class UserInterface {
 		System.out.println("Target: $" + fund.getTarget());
 		
 		List<Donation> donations = fund.getDonations();
+		long totalDonations = 0;
 		System.out.println("Number of donations: " + donations.size());
 		for (Donation donation : donations) {
 			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+			totalDonations += donation.getAmount();
 		}
-	
-		
+
+		int percent = (int)(totalDonations * 100 / fund.getTarget());
+		System.out.println("Total donation amount: $" + totalDonations + " (" + percent + "% of target)");
+
 		System.out.println("Press the Enter key to go back to the listing of funds");
 		in.nextLine();
 		
@@ -93,18 +97,20 @@ public class UserInterface {
 		String login = args[0];
 		String password = args[1];
 		
-		
-		Organization org = ds.attemptLogin(login, password);
-		
-		if (org == null) {
-			System.out.println("Login failed.");
-		}
-		else {
+		try {
+			Organization org = ds.attemptLogin(login, password);
 
-			UserInterface ui = new UserInterface(ds, org);
-		
-			ui.start();
-		
+			if (org == null) {
+				System.out.println("Login failed.");
+			} else {
+
+				UserInterface ui = new UserInterface(ds, org);
+
+				ui.start();
+
+			}
+		} catch (IllegalStateException e) {
+			System.out.println("Error communicating with the server: " + e.getMessage());
 		}
 	}
 
