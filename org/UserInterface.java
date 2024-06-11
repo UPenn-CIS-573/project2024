@@ -42,16 +42,22 @@ public class UserInterface {
 			
 			// invalid number
 			int option = -1;
-			try {
-				option = Integer.parseInt(input);
-			}
-			catch (NumberFormatException e) {
-				System.out.println("Invalid input. Please enter a number.");
-				continue;
-			}
-			if (option > org.getFunds().size() || option < 0) {
-				System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
-				continue;
+			boolean novalid = true;
+			while (novalid) {
+				
+				
+				try {
+					option = Integer.parseInt(input);
+				}
+				catch (NumberFormatException e) {
+					System.out.println("Invalid input. Please enter a number.");
+					continue;
+				}
+				if (option > org.getFunds().size() || option < 0) {
+					System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+					continue;
+				}
+				novalid = false;
 			}
 
 			if (option == 0) {
@@ -83,7 +89,13 @@ public class UserInterface {
 		}
 		
 		System.out.print("Enter the fund description: ");
-		String description = in.nextLine().trim();
+		String description = "";
+		while (description.trim().equals("")) {
+			description = in.nextLine().trim();
+			if (description.trim().equals("")) {
+				System.out.println("Fund description cannot be blank.");
+			}
+		}
 		
 		System.out.print("Enter the fund target: ");
 		// long target = in.nextInt();
@@ -98,6 +110,7 @@ public class UserInterface {
 			}
 			catch (NumberFormatException e) {
 				System.out.println("Invalid input. Please enter a number.");
+				target = -1;
 			}
 		}
 
