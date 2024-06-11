@@ -37,16 +37,18 @@ public class DataManager {
 
             if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
-                String id = (String)data.get("_id");
-                String name = (String)data.get("name");
-                String email = (String)data.get("email");
-                String creditCardNumber = (String)data.get("creditCardNumber");
-                String creditCardCVV = (String)data.get("creditCardCVV");
-                String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
-                String creditCardExpiryYear = ((Integer)data.get("creditCardExpiryYear")).toString();
-                String creditCardPostCode = (String)data.get("creditCardPostCode");
+                String id = (String)data.get("_id"),
+                        name = (String)data.get("name"),
+                        email = (String)data.get("email"),
+                        creditCardNumber = (String)data.get("creditCardNumber"),
+                        creditCardCVV = (String)data.get("creditCardCVV"),
+                        creditCardExpiryMonth = (
+                                (Integer)data.get("creditCardExpiryMonth")).toString(),
+                        creditCardExpiryYear = (
+                                (Integer)data.get("creditCardExpiryYear")).toString(),
+                        creditCardPostCode = (String)data.get("creditCardPostCode");
 
-                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
+                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
 
                 List<Donation> donationList = new LinkedList<>();
 
@@ -55,24 +57,16 @@ public class DataManager {
                 for (int i = 0; i < donations.length(); i++) {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
-
-                    String fund = getFundName((String)jsonDonation.get("fund"));
-                    String date = (String)jsonDonation.get("date");
+                    String fund = (String)jsonDonation.get("fund"),
+                            date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
-
                     Donation donation = new Donation(fund, name, amount, date);
                     donationList.add(donation);
-
                 }
-
                 contributor.setDonations(donationList);
-
                 return contributor;
-
             }
-
             return null;
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -188,7 +182,7 @@ public class DataManager {
             map.put("fund", fundId);
             map.put("amount", amount);
             String response = client.makeRequest("/makeDonation", map);
-            
+
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
@@ -199,6 +193,5 @@ public class DataManager {
             e.printStackTrace();
             return false;
         }
-
     }
 }
