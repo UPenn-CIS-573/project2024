@@ -30,8 +30,38 @@ public class UserInterface {
 				System.out.println("Enter the fund number to see more information.");
 			}
 			System.out.println("Enter 0 to create a new fund");
-			int option = in.nextInt();
-			in.nextLine();
+
+			String input = in.nextLine();
+			if (input.equals("quit") || input.equals("q")) {
+				System.out.println("Goodbye!");
+				break;
+			}
+
+			// int option = in.nextInt();
+			// in.nextLine();
+			
+			// invalid number
+			int option = -1;
+			boolean novalid = true;
+			while (novalid) {
+				
+				
+				try {
+					option = Integer.parseInt(input);
+				}
+				catch (NumberFormatException e) {
+					System.out.println("Invalid input. Please enter a number.");
+					input = in.nextLine();
+					continue;
+				}
+				if (option > org.getFunds().size() || option < 0) {
+					System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+					input = in.nextLine();
+					continue;
+				}
+				novalid = false;
+			}
+
 			if (option == 0) {
 				createFund(); 
 			}
@@ -43,47 +73,88 @@ public class UserInterface {
 	}
 	
 	public void createFund() {
+
+		// Modify this method so that it rejects any blank fund name or description, 
+		// or a negative value for the fund target, and gracefully handles any non-numeric input for the fund target. 
+		// In all cases, it should re-prompt the user to enter the value until they enter something valid. 
+		// It should not be possible for the user to crash the program by entering invalid inputs at the prompts.
+
 		
 		System.out.print("Enter the fund name: ");
-		String name = in.nextLine().trim();
+		// String name = in.nextLine().trim();
+		String name = "";
+		while (name.trim().equals("")) {
+			name = in.nextLine().trim();
+			if (name.trim().equals("")) {
+				System.out.println("Fund name cannot be blank.");
+			}
+		}
 		
 		System.out.print("Enter the fund description: ");
-		String description = in.nextLine().trim();
+		String description = "";
+		while (description.trim().equals("")) {
+			description = in.nextLine().trim();
+			if (description.trim().equals("")) {
+				System.out.println("Fund description cannot be blank.");
+			}
+		}
 		
 		System.out.print("Enter the fund target: ");
-		long target = in.nextInt();
-		in.nextLine();
+		// long target = in.nextInt();
+		// in.nextLine();
+		long target = -1;
+		while (target < 0) {
+			try {
+				target = Long.parseLong(in.nextLine());
+				if (target < 0) {
+					System.out.println("Fund target cannot be negative.");
+				}
+			}
+			catch (NumberFormatException e) {
+				System.out.println("Invalid input. Please enter a number.");
+				target = -1;
+			}
+		}
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
-
-		
 	}
 	
 	
 	public void displayFund(int fundNumber) {
-		
-		Fund fund = org.getFunds().get(fundNumber - 1);
-		
-		System.out.println("\n\n");
-		System.out.println("Here is information about this fund:");
-		System.out.println("Name: " + fund.getName());
-		System.out.println("Description: " + fund.getDescription());
-		System.out.println("Target: $" + fund.getTarget());
-		
-		List<Donation> donations = fund.getDonations();
-		System.out.println("Number of donations: " + donations.size());
-		for (Donation donation : donations) {
-			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
-		}
-	
-		
-		System.out.println("Press the Enter key to go back to the listing of funds");
-		in.nextLine();
-		
-		
-		
-	}
+        // Bug No.1 out of index
+        // The bug is that the fundNumber is not checked to be within the bounds of the funds list.
+        long totalDonations = 0;
+        Fund fund = null;
+        if (fundNumber <= org.getFunds().size() && fundNumber > 0) {
+            fund = org.getFunds().get(fundNumber - 1);
+
+            System.out.println("\n\n");
+            System.out.println("Here is information about this fund:");
+            System.out.println("Name: " + fund.getName());
+            System.out.println("Description: " + fund.getDescription());
+            System.out.println("Target: $" + fund.getTarget());
+
+            List<Donation> donations = fund.getDonations();
+            System.out.println("Number of donations: " + donations.size());
+
+            for (Donation donation : donations) {
+                System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+                totalDonations += donation.getAmount();
+            }
+        } else {
+            System.out.println("Invalid fund number");
+        }
+
+		double donationPercentage = totalDonations * 1.0 / fund.getTarget();
+		String percentage = String.format("%.2f", donationPercentage * 100);
+		// set 2 decimal points
+
+        System.out.println("Total donation amount: $" + totalDonations + "(" + percentage + "% of " +
+                "the target)");
+        System.out.println("Press the Enter key to go back to the listing of funds");
+        in.nextLine();
+    }
 	
 	
 	public static void main(String[] args) {
@@ -92,9 +163,14 @@ public class UserInterface {
 		
 		String login = args[0];
 		String password = args[1];
-		
-		
-		Organization org = ds.attemptLogin(login, password);
+
+		Organization org = null;
+		try{
+			org = ds.attemptLogin(login, password);
+		} catch (IllegalStateException e) {
+			System.out.println("Error in communicating with server.");
+			return;
+		}
 		
 		if (org == null) {
 			System.out.println("Login failed.");

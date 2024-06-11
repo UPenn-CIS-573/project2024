@@ -2,6 +2,7 @@ package edu.upenn.cis573.project;
 
 import java.io.Serializable;
 
+
 public class Donation implements Serializable {
 
     private String fundName;

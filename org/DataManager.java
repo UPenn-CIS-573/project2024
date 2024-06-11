@@ -30,6 +30,11 @@ public class DataManager {
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
 
+			// connection fails
+			if (response == null) {
+				throw new IllegalStateException("Response is null");
+			}
+
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
@@ -39,7 +44,7 @@ public class DataManager {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
 				String name = (String)data.get("name");
-				String description = (String)data.get("descrption");
+				String description = (String)data.get("description");
 				Organization org = new Organization(fundId, name, description);
 
 				JSONArray funds = (JSONArray)data.get("funds");
@@ -62,18 +67,30 @@ public class DataManager {
 						String contributorName = this.getContributorName(contributorId);
 						long amount = (Long)donation.get("amount");
 						String date = (String)donation.get("date");
+
+						String day_date = date.split("T")[0];
+						String[] date_parts = day_date.split("-");
+						// check seperator
+						if (date_parts.length != 3) {
+							continue;
+						}
+
+						String month = MonthLiteral(date_parts[1]);
+						date = month + " " + date_parts[2] + ", " + date_parts[0];
 						donationList.add(new Donation(fundId, contributorName, amount, date));
 					}
 
 					newFund.setDonations(donationList);
-
 					org.addFund(newFund);
-
 				}
 
 				return org;
 			}
 			else return null;
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -109,6 +126,51 @@ public class DataManager {
 		catch (Exception e) {
 			return null;
 		}	
+	}
+
+	public static String MonthLiteral(String month_int){
+		// convert month from number to literal
+		String month = "";
+		switch (month_int) {
+			case "01":
+				month = "January";
+				break;
+			case "02":
+				month = "February";
+				break;
+			case "03":
+				month = "March";
+				break;
+			case "04":
+				month = "April";
+				break;
+			case "05":
+				month = "May";
+				break;
+			case "06":
+				month = "June";
+				break;
+			case "07":
+				month = "July";
+				break;
+			case "08":
+				month = "August";
+				break;
+			case "09":
+				month = "September";
+				break;
+			case "10":
+				month = "October";
+				break;
+			case "11":
+				month = "November";
+				break;
+			case "12":
+				month = "December";
+				break;
+		}
+
+		return month;
 	}
 
 	/**
