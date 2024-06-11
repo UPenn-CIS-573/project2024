@@ -60,8 +60,12 @@ public class DataManager_attemptLogin_Test {
             }
         });
 
-        Organization o = dm.attemptLogin("123456", "123456");
-        assertNull(o);
+        try {
+            dm.attemptLogin("123456", "123456");
+            fail("Expected IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("Error in communicating with server", e.getMessage());
+        }
     }
 
     @Test
