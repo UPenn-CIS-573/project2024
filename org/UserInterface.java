@@ -51,10 +51,12 @@ public class UserInterface {
 				}
 				catch (NumberFormatException e) {
 					System.out.println("Invalid input. Please enter a number.");
+					input = in.nextLine();
 					continue;
 				}
 				if (option > org.getFunds().size() || option < 0) {
 					System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+					input = in.nextLine();
 					continue;
 				}
 				novalid = false;
@@ -116,15 +118,13 @@ public class UserInterface {
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
-
-		
 	}
 	
 	
 	public void displayFund(int fundNumber) {
 		// Bug No.1 out of index
 		// The bug is that the fundNumber is not checked to be within the bounds of the funds list.
-		if(fundNumber < org.getFunds().size() && fundNumber > 0) {
+		if(fundNumber <= org.getFunds().size() && fundNumber > 0) {
 			Fund fund = org.getFunds().get(fundNumber - 1);
 
 			System.out.println("\n\n");
