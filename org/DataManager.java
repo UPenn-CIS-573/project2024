@@ -29,6 +29,7 @@ public class DataManager {
 		if (login.isEmpty() || password.isEmpty()) {
 			return null;
 		}
+
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("login", login);
