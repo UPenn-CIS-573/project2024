@@ -8,44 +8,28 @@
 
 ## Changes Made in This Phase
 
-### Task 1.1: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.1:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
-### Task 1.2: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.2:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
-### Task 1.3: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.3:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
-### Task 1.4: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.4:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
-### Task 1.5: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.5:
+- **Brief Description**: Created 3 new test files for the remaining methods in DataManager. For each of the method, create tests that tested for a success fetch, a failed fetch and an exception throw which covers all of the statements. Fixed minor part of the code where there is a mistake that resulted in incorrect test results.
+
+### Task 1.6:
+- **Brief Description**: Added a TextView in `activity_view_donations.xml` to show the total amount of donation that the current logged in user has made. Added a few lines into `ViewDonationsActivity.java` to calculate the amount of total donations made and display it onto `activity_view_donations.xml`.
+
+### Task 1.8:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
-### Task 1.6: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
-- **Brief Description**: Provide a brief description of what was done in this task.
-
-### Task 1.8: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
-- **Brief Description**: Provide a brief description of what was done in this task.
-
-### Task 1.9: [Required/Additional Task Name]
-- **Classes/Methods Changed**: List the names of classes and methods changed.
-- **New Methods Created**: Describe any new methods that were added.
+### Task 1.9:
 - **Brief Description**: Provide a brief description of what was done in this task.
 
 ## Bugs Found and Fixed in Tasks 1.2, 1.5 
@@ -63,7 +47,6 @@
 ## Known Bugs or Issues
 - **Issue & Fix**: Android Studio throws update check on Gradle version so updated Gradle Version.
 - **Issue & Fix**: Added fixes and updates paths for testPath and classPath in `gradle.build (Module)`
-- **Issue & Fix**: Describe any known issues or bugs for this task.
 
 ## Team Member Contributions
 ### Member 1: [Tahmid Ahamed]
@@ -80,4 +63,4 @@
 
 ### Member 4: [Aaron Wu]
 - **Tasks Worked On**: Task 1.5, Task 1.6
-- **Contributions**: Provide a specific description of contributions.
+- **Contributions**: In task 1.5, swapped the parameter locations so the error of getting the expiration month vs experation date credential is returned correctly and added test files for each of the methods in DataManager as well as making sure that 100% statement coverage is met. In task 1.6, added the TextField and the logic between `activity_view_donations.xml` and `ViewDonationsActivity.java`. TextField is added into `activity_view_donations.xml`, a variable is used to sum up the donations as the list of donation is iterated in `ViewDonationsActivity.java` and the called to display. Set up this write-up template.
