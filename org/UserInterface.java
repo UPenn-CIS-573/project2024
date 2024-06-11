@@ -30,7 +30,7 @@ public class UserInterface {
 				System.out.println("Enter the fund number to see more information.");
 			}
 			System.out.println("Enter 0 to create a new fund");
-			
+
 			String input = in.nextLine();
 			if (input.equals("quit") || input.equals("q")) {
 				System.out.println("Goodbye!");
@@ -122,29 +122,35 @@ public class UserInterface {
 	
 	
 	public void displayFund(int fundNumber) {
-		// Bug No.1 out of index
-		// The bug is that the fundNumber is not checked to be within the bounds of the funds list.
-		if(fundNumber <= org.getFunds().size() && fundNumber > 0) {
-			Fund fund = org.getFunds().get(fundNumber - 1);
+        // Bug No.1 out of index
+        // The bug is that the fundNumber is not checked to be within the bounds of the funds list.
+        long totalDonations = 0;
+        Fund fund = null;
+        if (fundNumber <= org.getFunds().size() && fundNumber > 0) {
+            fund = org.getFunds().get(fundNumber - 1);
 
-			System.out.println("\n\n");
-			System.out.println("Here is information about this fund:");
-			System.out.println("Name: " + fund.getName());
-			System.out.println("Description: " + fund.getDescription());
-			System.out.println("Target: $" + fund.getTarget());
+            System.out.println("\n\n");
+            System.out.println("Here is information about this fund:");
+            System.out.println("Name: " + fund.getName());
+            System.out.println("Description: " + fund.getDescription());
+            System.out.println("Target: $" + fund.getTarget());
 
-			List<Donation> donations = fund.getDonations();
-			System.out.println("Number of donations: " + donations.size());
-			for (Donation donation : donations) {
-				System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
-			}
-		} else {
-			System.out.println("Invalid fund number");
-		}
+            List<Donation> donations = fund.getDonations();
+            System.out.println("Number of donations: " + donations.size());
 
-		System.out.println("Press the Enter key to go back to the listing of funds");
-		in.nextLine();
-	}
+            for (Donation donation : donations) {
+                System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+                totalDonations += donation.getAmount();
+            }
+        } else {
+            System.out.println("Invalid fund number");
+        }
+        double donationPercentage = totalDonations * 1.0 / fund.getTarget();
+        System.out.println("Total donation amount: $" + totalDonations + "(" + Math.round(donationPercentage * 100) + "% of " +
+                "the target)");
+        System.out.println("Press the Enter key to go back to the listing of funds");
+        in.nextLine();
+    }
 	
 	
 	public static void main(String[] args) {
