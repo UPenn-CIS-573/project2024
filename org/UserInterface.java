@@ -12,34 +12,56 @@ public class UserInterface {
 		this.dataManager = dataManager;
 		this.org = org;
 	}
-	
+
 	public void start() {
-				
+
 		while (true) {
 			System.out.println("\n\n");
 			if (org.getFunds().size() > 0) {
 				System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
-			
+
 				int count = 1;
 				for (Fund f : org.getFunds()) {
-					
+
 					System.out.println(count + ": " + f.getName());
-					
+
 					count++;
 				}
 				System.out.println("Enter the fund number to see more information.");
 			}
 			System.out.println("Enter 0 to create a new fund");
-			int option = in.nextInt();
-			in.nextLine();
+			int option;
+
+			while (true) {
+				if (in.hasNextInt()) {
+					option = in.nextInt();
+					if (option < 0 || option > org.getFunds().size()) {
+						System.out.println("Please enter a valid fund number: ");
+						continue;
+					}
+					in.nextLine();
+					break;
+				}else if (in.hasNext()) {
+					String input = in.next();
+					if (input.equals("q") || input.equals("quit")) {
+						return;
+					}else{
+						System.out.println("Please enter an Integer:");
+						in.nextLine();
+					}
+				}else {
+					System.out.println("Please enter an Integer: ");
+					in.nextLine();
+				}
+			}
+
 			if (option == 0) {
-				createFund(); 
+				createFund();
 			}
 			else {
 				displayFund(option);
 			}
-		}			
-			
+		}
 	}
 	
 	public void createFund() {

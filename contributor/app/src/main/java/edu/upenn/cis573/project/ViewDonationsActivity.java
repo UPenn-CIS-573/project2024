@@ -19,6 +19,7 @@ public class ViewDonationsActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -31,16 +32,18 @@ public class ViewDonationsActivity extends AppCompatActivity {
 
         messageField.setText("Here are " + contributor.getName() + "'s donations:");
 
-        String[] donations = new String[contributor.getDonations().size()];
+        String[] donations = new String[contributor.getDonations().size() + 1];
 
         int index = 0;
+        double totalAmount = 0.0;
 
         for (Donation d : contributor.getDonations()) {
 
             //Log.v("donation", d.toString());
             donations[index++] = d.toString();
-
+            totalAmount += d.getAmount();
         }
+        donations[index] = "Total Donation Amount: $" + String.format("%.2f", totalAmount);
 
         ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.listview, donations);
 
