@@ -81,8 +81,7 @@ public class DataManager {
 			else return null;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}
 	}
 
