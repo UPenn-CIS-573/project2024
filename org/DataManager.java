@@ -68,57 +68,20 @@ public class DataManager {
 						long amount = (Long)donation.get("amount");
 						String date = (String)donation.get("date");
 
-						String day_date = date.split("T")[0]; // Bug No.2 date format (ISO 8601) is not correct
+						String day_date = date.split("T")[0];
 						String[] date_parts = day_date.split("-");
-						// convert month from number to literal
-						String month = "";
-						switch (date_parts[1]) {
-							case "01":
-								month = "January";
-								break;
-							case "02":
-								month = "February";
-								break;
-							case "03":
-								month = "March";
-								break;
-							case "04":
-								month = "April";
-								break;
-							case "05":
-								month = "May";
-								break;
-							case "06":
-								month = "June";
-								break;
-							case "07":
-								month = "July";
-								break;
-							case "08":
-								month = "August";
-								break;
-							case "09":
-								month = "September";
-								break;
-							case "10":
-								month = "October";
-								break;
-							case "11":
-								month = "November";
-								break;
-							case "12":
-								month = "December";
-								break;
+						// check seperator
+						if (date_parts.length != 3) {
+							continue;
 						}
-						date = month + " " + date_parts[2] + ", " + date_parts[0];
 
+						String month = MonthLiteral(date_parts[1]);
+						date = month + " " + date_parts[2] + ", " + date_parts[0];
 						donationList.add(new Donation(fundId, contributorName, amount, date));
 					}
 
 					newFund.setDonations(donationList);
-
 					org.addFund(newFund);
-
 				}
 
 				return org;
@@ -163,6 +126,51 @@ public class DataManager {
 		catch (Exception e) {
 			return null;
 		}	
+	}
+
+	public static String MonthLiteral(String month_int){
+		// convert month from number to literal
+		String month = "";
+		switch (month_int) {
+			case "01":
+				month = "January";
+				break;
+			case "02":
+				month = "February";
+				break;
+			case "03":
+				month = "March";
+				break;
+			case "04":
+				month = "April";
+				break;
+			case "05":
+				month = "May";
+				break;
+			case "06":
+				month = "June";
+				break;
+			case "07":
+				month = "July";
+				break;
+			case "08":
+				month = "August";
+				break;
+			case "09":
+				month = "September";
+				break;
+			case "10":
+				month = "October";
+				break;
+			case "11":
+				month = "November";
+				break;
+			case "12":
+				month = "December";
+				break;
+		}
+
+		return month;
 	}
 
 	/**

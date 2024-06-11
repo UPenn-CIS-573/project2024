@@ -145,8 +145,12 @@ public class UserInterface {
         } else {
             System.out.println("Invalid fund number");
         }
-        double donationPercentage = totalDonations * 1.0 / fund.getTarget();
-        System.out.println("Total donation amount: $" + totalDonations + "(" + Math.round(donationPercentage * 100) + "% of " +
+
+		double donationPercentage = totalDonations * 1.0 / fund.getTarget();
+		String percentage = String.format("%.2f", donationPercentage * 100);
+		// set 2 decimal points
+
+        System.out.println("Total donation amount: $" + totalDonations + "(" + percentage + "% of " +
                 "the target)");
         System.out.println("Press the Enter key to go back to the listing of funds");
         in.nextLine();
