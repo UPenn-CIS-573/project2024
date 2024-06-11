@@ -23,6 +23,7 @@ public class ViewDonationsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         TextView messageField = findViewById(R.id.donationsListHeaderField);
+        TextView totalDonationsTextView = findViewById(R.id.totalDonationsTextView);
 
         Contributor contributor = MainActivity.contributor;
 
@@ -34,18 +35,21 @@ public class ViewDonationsActivity extends AppCompatActivity {
         String[] donations = new String[contributor.getDonations().size()];
 
         int index = 0;
+        double totalDonations = 0.0;
 
         for (Donation d : contributor.getDonations()) {
 
             //Log.v("donation", d.toString());
             donations[index++] = d.toString();
-
+            totalDonations += d.getAmount();
         }
 
         ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.listview, donations);
 
         ListView listView = (ListView) findViewById(R.id.donationsList);
         listView.setAdapter(adapter);
+
+        totalDonationsTextView.setText("Total Donations: $" + totalDonations);
     }
 
 
