@@ -43,16 +43,40 @@ public class UserInterface {
 	}
 	
 	public void createFund() {
+
+		String name;
+		String description;
+		long target;
 		
-		System.out.print("Enter the fund name: ");
-		String name = in.nextLine().trim();
+		while(name.isEmpty()){
+			System.out.print("Enter the fund name: ");
+			name = in.nextLine().trim();
+			if(name.isEmpty()){
+				System.out.println("Fund name cannot be left blank or empty.");
+			}
+		}
+		while(description.isEmpty()){
+			System.out.print("Enter the fund description: ");
+			description = in.nextLine().trim();
+			if(name.isEmpty()){
+				System.out.println("Fund description cannot be left blank or empty.");
+			}
+		}
 		
-		System.out.print("Enter the fund description: ");
-		String description = in.nextLine().trim();
+		while(true){
+			System.out.print("Enter the fund target: ");
+			try{
+				target = Long.parseLong(in.nextLine().trim());
+				if(target < 0){
+					System.out.println("Fund target cannot be negative.");
+				}else{
+					break;
+				}
+			} catch (NumberFormatException e){
+				System.out.println("Invalid input. Please enter a number");
+			}
+		}
 		
-		System.out.print("Enter the fund target: ");
-		long target = in.nextInt();
-		in.nextLine();
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
@@ -93,8 +117,14 @@ public class UserInterface {
 		String login = args[0];
 		String password = args[1];
 		
-		
-		Organization org = ds.attemptLogin(login, password);
+		Organization org;
+		try{
+			org = ds.attemptLogin(login, password);
+
+		} catch(IllegalStateException e){
+			System.out.println("Error communicating with the server.");
+			return;
+		}
 		
 		if (org == null) {
 			System.out.println("Login failed.");

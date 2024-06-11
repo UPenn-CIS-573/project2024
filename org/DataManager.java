@@ -1,148 +1,204 @@
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class DataManager {
 
-	private final WebClient client;
+    private WebClient client;
 
-	public DataManager(WebClient client) {
-		this.client = client;
-	}
-
-	/**
-	 * Attempt to log the user into an Organization account using the login and password.
-	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
-	 * @return an Organization object if successful; null if unsuccessful
-	 */
-	public Organization attemptLogin(String login, String password) {
-
-		try {
-			Map<String, Object> map = new HashMap<>();
-			map.put("login", login);
-			map.put("password", password);
-			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-
-			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+    public DataManager(WebClient client) {
+        this.client = client;
+    }
 
 
-			if (status.equals("success")) {
-				JSONObject data = (JSONObject)json.get("data");
-				String fundId = (String)data.get("_id");
-				String name = (String)data.get("name");
-				String description = (String)data.get("description");
-				Organization org = new Organization(fundId, name, description);
+    /**
+     * Attempt to log in to the Contributor account using the specified login and password.
+     * This method uses the /findContributorByLoginAndPassword endpoint in the API
+     * @return the Contributor object if successfully logged in, null otherwise
+     */
+    public Contributor attemptLogin(String login, String password) {
 
-				JSONArray funds = (JSONArray)data.get("funds");
-				Iterator it = funds.iterator();
-				while(it.hasNext()){
-					JSONObject fund = (JSONObject) it.next(); 
-					fundId = (String)fund.get("_id");
-					name = (String)fund.get("name");
-					description = (String)fund.get("description");
-					long target = (Long)fund.get("target");
+        try {
+            Map<String, Object> map = new HashMap<>();
+            map.put("login", login);
+            map.put("password", password);
+            String response = client.makeRequest("/findContributorByLoginAndPassword", map);
 
-					Fund newFund = new Fund(fundId, name, description, target);
+            JSONObject json = new JSONObject(response);
+            String status = (String)json.get("status");
 
-					JSONArray donations = (JSONArray)fund.get("donations");
-					List<Donation> donationList = new LinkedList<>();
-					Iterator it2 = donations.iterator();
-					while(it2.hasNext()){
-						JSONObject donation = (JSONObject) it2.next();
-						String contributorId = (String)donation.get("contributor");
-						String contributorName = this.getContributorName(contributorId);
-						long amount = (Long)donation.get("amount");
-						String date = (String)donation.get("date");
-						donationList.add(new Donation(fundId, contributorName, amount, date));
-					}
+            if(status.equals("error")){
+                throw new IllegalStateException("Error in communicating with server");
+            }
+            if(status.equals("Login failed")){
+                return null;
+            }
+            else if (status.equals("success")) {
+                JSONObject data = (JSONObject)json.get("data");
+                String id = (String)data.get("_id"),
+                        name = (String)data.get("name"),
+                        email = (String)data.get("email"),
+                        creditCardNumber = (String)data.get("creditCardNumber"),
+                        creditCardCVV = (String)data.get("creditCardCVV"),
+                        creditCardExpiryMonth = (
+                                (Integer)data.get("creditCardExpiryMonth")).toString(),
+                        creditCardExpiryYear = (
+                                (Integer)data.get("creditCardExpiryYear")).toString(),
+                        creditCardPostCode = (String)data.get("creditCardPostCode");
 
-					newFund.setDonations(donationList);
+                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
 
-					org.addFund(newFund);
+                List<Donation> donationList = new LinkedList<>();
 
-				}
+                JSONArray donations = (JSONArray)data.get("donations");
 
-				return org;
-			}
-			else return null;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+                for (int i = 0; i < donations.length(); i++) {
 
-	/**
-	 * Look up the name of the contributor with the specified ID.
-	 * This method uses the /findContributorNameById endpoint in the API.
-	 * @return the name of the contributor on success; null if no contributor is found
-	 */
-	public String getContributorName(String id) {
+                    JSONObject jsonDonation = donations.getJSONObject(i);
+                    String fund = (String)jsonDonation.get("fund"),
+                            date = (String)jsonDonation.get("date");
+                    long amount = (Integer)jsonDonation.get("amount");
+                    Donation donation = new Donation(fund, name, amount, date);
+                    donationList.add(donation);
+                }
+                contributor.setDonations(donationList);
+                return contributor;
+            }
+            return null;
+        }
+        catch (IllegalStateException e){
+            throw new IllegalStateException("Error communicating with server");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-		try {
+    /**
+     * Get the name of the fund with the specified ID using the /findFundNameById endpoint
+     * @return the name of the fund if found, "Unknown fund" if not found, null if an error occurs
+     */
+    public String getFundName(String id) {
 
-			Map<String, Object> map = new HashMap<>();
-			map.put("_id", id);
-			String response = client.makeRequest("/findContributorNameById", map);
+        try {
 
-			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", id);
+            String response = client.makeRequest("/findFundNameById", map);
 
-			if (status.equals("success")) {
-				String name = (String)json.get("data");
-				return name;
-			}
-			else return null;
+            JSONObject json = new JSONObject(response);
+            String status = (String)json.get("status");
 
+            if (status.equals("success")) {
+                String name = (String)json.get("data");
+                return name;
+            }
+            else return "Unknown Fund";
 
-		}
-		catch (Exception e) {
-			return null;
-		}	
-	}
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-	/**
-	 * This method creates a new fund in the database using the /createFund endpoint in the API
-	 * @return a new Fund object if successful; null if unsuccessful
-	 */
-	public Fund createFund(String orgId, String name, String description, long target) {
+    /**
+     * Get information about all of the organizations and their funds.
+     * This method uses the /allOrgs endpoint in the API
+     * @return a List of Organization objects if successful, null otherwise
+     */
+    public List<Organization> getAllOrganizations() {
+        try {
+            Map<String, Object> map = new HashMap<>();
+            String response = client.makeRequest("/allOrgs", map);
 
-		try {
+            JSONObject json = new JSONObject(response);
+            String status = (String)json.get("status");
 
-			Map<String, Object> map = new HashMap<>();
-			map.put("orgId", orgId);
-			map.put("name", name);
-			map.put("description", description);
-			map.put("target", target);
-			String response = client.makeRequest("/createFund", map);
+            if (status.equals("success")) {
 
-			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+                List<Organization> organizations = new LinkedList<>();
 
-			if (status.equals("success")) {
-				JSONObject fund = (JSONObject)json.get("data");
-				String fundId = (String)fund.get("_id");
-				return new Fund(fundId, name, description, target);
-			}
-			else return null;
+                JSONArray data = (JSONArray)json.get("data");
 
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}	
-	}
+                for (int i = 0; i < data.length(); i++) {
 
+                    JSONObject obj = data.getJSONObject(i);
 
+                    String id = (String)obj.get("_id");
+                    String name = (String)obj.get("name");
+
+                    Organization org = new Organization(id, name);
+
+                    List<Fund> fundList = new LinkedList<>();
+
+                    JSONArray array = (JSONArray)obj.get("funds");
+
+                    for (int j = 0; j < array.length(); j++) {
+
+                        JSONObject fundObj = array.getJSONObject(j);
+
+                        id = (String)fundObj.get("_id");
+                        name = (String)fundObj.get("name");
+                        long target = (Integer)fundObj.get("target");
+                        long totalDonations = (Integer)fundObj.get("totalDonations");
+
+                        Fund fund = new Fund(id, name, target, totalDonations);
+
+                        fundList.add(fund);
+
+                    }
+
+                    org.setFunds(fundList);
+
+                    organizations.add(org);
+
+                }
+
+                return organizations;
+
+            }
+
+            return null;
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Make a donation to the specified fund for the specified amount.
+     * This method uses the /makeDonation endpoint in the API
+     * @return true if successful, false otherwise
+     */
+    public boolean makeDonation(String contributorId, String fundId, String amount) {
+
+        try {
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("contributor", contributorId);
+            map.put("fund", fundId);
+            map.put("amount", amount);
+            String response = client.makeRequest("/makeDonation", map);
+
+            JSONObject json = new JSONObject(response);
+            String status = (String)json.get("status");
+
+            return status.equals("success");
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
