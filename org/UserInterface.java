@@ -59,8 +59,8 @@ public class UserInterface {
 
 	public void createFund() {
 
-		String name;
-		String description;
+		String name = "";
+		String description = "";
 		long target;
 		
 		while(name.isEmpty()){
