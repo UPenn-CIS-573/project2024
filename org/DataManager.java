@@ -91,7 +91,7 @@ public class DataManager {
 		try {
 
 			Map<String, Object> map = new HashMap<>();
-			map.put("id", id);
+			map.put("_id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
 
 			JSONParser parser = new JSONParser();
