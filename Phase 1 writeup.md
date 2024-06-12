@@ -15,10 +15,10 @@
 - **Brief Description**: Made small adjustments to methods to ensure correctness. More specifically, fixed typos and small bugs related to variable/field naming.
 
 ### Task 1.3:
-- **Brief Description**: Provide a brief description of what was done in this task.
+- **Brief Description**: Added in parsing of the user input to quit the program if user enters 'q' or 'quit.' Also, added in error-checking for invalid input (i.e. non-numbers and numbers outside the range of current funds). 
 
 ### Task 1.4:
-- **Brief Description**: Provide a brief description of what was done in this task.
+- **Brief Description**: Added in code that prints the total donation amount and the percentage of target by keeping track of the total amount of donation while looping through donations. 
 
 ### Task 1.5:
 - **Brief Description**: Created 3 new test files for the remaining methods in DataManager. For each of the method, create tests that tested for a success fetch, a failed fetch and an exception throw which covers all of the statements. Fixed minor part of the code where there is a mistake that resulted in incorrect test results.
@@ -61,7 +61,7 @@
 
 ### Member 3: [Geshi Yeung]
 - **Tasks Worked On**: Task 1.3, Task 1.4
-- **Contributions**: Provide a specific description of contributions.
+- **Contributions**: Added in error-checks and display of total donations for Task 1.3 and 1.4 respectively (as described above). 
 
 ### Member 4: [Aaron Wu]
 - **Tasks Worked On**: Task 1.5, Task 1.6
