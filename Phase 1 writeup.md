@@ -9,10 +9,10 @@
 ## Changes Made in This Phase
 
 ### Task 1.1:
-- **Brief Description**: Provide a brief description of what was done in this task.
-
+- **Brief Description**: Added tests to cover reachable statements for createFund, attemptLogin, and getContributorName in DataManager. These test files all included tests for bad statuses and tests that checked for exception handling in the methods.
+ 
 ### Task 1.2:
-- **Brief Description**: Provide a brief description of what was done in this task.
+- **Brief Description**: Made small adjustments to methods to ensure correctness. More specifically, fixed typos and small bugs related to variable/field naming.
 
 ### Task 1.3:
 - **Brief Description**: Provide a brief description of what was done in this task.
