@@ -27,10 +27,12 @@
 - **Brief Description**: Added a TextView in `activity_view_donations.xml` to show the total amount of donation that the current logged in user has made. Added a few lines into `ViewDonationsActivity.java` to calculate the amount of total donations made and display it onto `activity_view_donations.xml`.
 
 ### Task 1.8:
-- **Brief Description**: Provide a brief description of what was done in this task.
+- **Brief Description**: Added three checks that would check if the name, description, and the fund target were adherent to the format described in the specifications. Any time an empty
+- value for name and description were added, or a negative / non numeric input added for the fund target value, it will reprompt the user to enter a valid value for each variable.
 
 ### Task 1.9:
-- **Brief Description**: Provide a brief description of what was done in this task.
+- **Brief Description**: Added in checks for the status of the JSON Response, and throws an IllegalStateException is an error status is returned and a null value for the login failure case.
+- In this case (since there are only three response statuses), we can immediately differentiate between the error states the DataManager sends back in UserInterface.
 
 ## Bugs Found and Fixed in Tasks 1.2, 1.5 
 ### Task 1.2
