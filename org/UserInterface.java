@@ -44,6 +44,7 @@ public class UserInterface {
 				}else if (in.hasNext()) {
 					String input = in.next();
 					if (input.equals("q") || input.equals("quit")) {
+						System.out.println("Good bye!");
 						return;
 					}else{
 						System.out.println("Please enter an Integer:");
@@ -106,9 +107,6 @@ public class UserInterface {
 
 		System.out.println("Press the Enter key to go back to the listing of funds");
 		in.nextLine();
-		
-		
-		
 	}
 	
 	
