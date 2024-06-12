@@ -2,12 +2,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class UserInterface {
-	
-	
+
+
 	private DataManager dataManager;
 	private Organization org;
 	private Scanner in = new Scanner(System.in);
-	
+
 	public UserInterface(DataManager dataManager, Organization org) {
 		this.dataManager = dataManager;
 		this.org = org;
@@ -64,36 +64,62 @@ public class UserInterface {
 			}
 		}
 	}
-	
+
 	public void createFund() {
-		
-		System.out.print("Enter the fund name: ");
-		String name = in.nextLine().trim();
-		
-		System.out.print("Enter the fund description: ");
-		String description = in.nextLine().trim();
-		
-		System.out.print("Enter the fund target: ");
-		long target = in.nextInt();
-		in.nextLine();
+		String name = "";
+		String description = "";
+		long target = -1;
+
+		while (name.isBlank()) {
+			System.out.print("Enter the fund name: ");
+			name = in.nextLine().trim();
+			if (name.isBlank()) {
+				System.out.println("Fund name cannot be blank. Please enter a valid name.");
+			}
+		}
+
+		while (description.isBlank()) {
+			System.out.print("Enter the fund description: ");
+			description = in.nextLine().trim();
+			if (description.isBlank()) {
+				System.out.println("Fund description cannot be blank. Please enter a valid description.");
+			}
+		}
+
+
+		while (target < 0) {
+			System.out.print("Enter the fund target: ");
+			String targetInput = in.nextLine().trim();
+			try {
+				target = Long.parseLong(targetInput);
+				if (target < 0) {
+					System.out.println("Fund target cannot be negative. Please enter a non-negative value.");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input. Please enter a valid numeric value for the fund target.");
+			}
+		}
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
-		org.getFunds().add(fund);
-
-		
+		if (fund != null) {
+			org.getFunds().add(fund);
+			System.out.println("Fund created successfully.");
+		} else {
+			System.out.println("Failed to create fund.");
+		}
 	}
-	
-	
+
+
 	public void displayFund(int fundNumber) {
-		
+
 		Fund fund = org.getFunds().get(fundNumber - 1);
-		
+
 		System.out.println("\n\n");
 		System.out.println("Here is information about this fund:");
 		System.out.println("Name: " + fund.getName());
 		System.out.println("Description: " + fund.getDescription());
 		System.out.println("Target: $" + fund.getTarget());
-		
+
 		List<Donation> donations = fund.getDonations();
 		long totalDonations = 0;
 		System.out.println("Number of donations: " + donations.size());
@@ -108,15 +134,15 @@ public class UserInterface {
 		System.out.println("Press the Enter key to go back to the listing of funds");
 		in.nextLine();
 	}
-	
-	
+
+
 	public static void main(String[] args) {
-		
+
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
-		
+
 		String login = args[0];
 		String password = args[1];
-		
+
 		try {
 			Organization org = ds.attemptLogin(login, password);
 
