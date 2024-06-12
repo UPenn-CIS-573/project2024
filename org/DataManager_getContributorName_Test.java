@@ -12,7 +12,7 @@ public class DataManager_getContributorName_Test {
 			
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
-				return "{\"status\":\"bad\",\"data\":\"hello\"}";
+				return "{\"status\":\"bad\"}";
 
 			}
 			
@@ -32,7 +32,6 @@ public class DataManager_getContributorName_Test {
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
 				return null;
-
 			}
 			
 		});

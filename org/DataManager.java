@@ -37,21 +37,21 @@ public class DataManager {
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
-				String fundId = (String)data.get("_id");
-				String name = (String)data.get("name");
-				String description = (String)data.get("description");
-				Organization org = new Organization(fundId, name, description);
-
+				String orgId = (String)data.get("_id");
+				String orgName = (String)data.get("name");
+				String orgDescription = (String)data.get("description");
+				Organization org = new Organization(orgId, orgName, orgDescription);
+				String fundId; String fundName; String fundDescription;
 				JSONArray funds = (JSONArray)data.get("funds");
 				Iterator it = funds.iterator();
 				while(it.hasNext()){
 					JSONObject fund = (JSONObject) it.next(); 
 					fundId = (String)fund.get("_id");
-					name = (String)fund.get("name");
-					description = (String)fund.get("description");
+					fundName = (String)fund.get("name");
+					fundDescription = (String)fund.get("description");
 					long target = (Long)fund.get("target");
 
-					Fund newFund = new Fund(fundId, name, description, target);
+					Fund newFund = new Fund(fundId, fundName, fundDescription, target);
 
 					JSONArray donations = (JSONArray)fund.get("donations");
 					List<Donation> donationList = new LinkedList<>();
@@ -132,8 +132,7 @@ public class DataManager {
 
 			if (status.equals("success")) {
 				JSONObject fund = (JSONObject)json.get("data");
-				String fundId = (String)fund.get("_id");
-				return new Fund(fundId, name, description, target);
+				return new Fund(orgId, name, description, target);
 			}
 			else return null;
 
