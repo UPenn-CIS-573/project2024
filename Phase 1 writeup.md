@@ -53,7 +53,7 @@
 ## Team Member Contributions
 ### Member 1: [Tahmid Ahamed]
 - **Tasks Worked On**: Task 1.8, Task 1.9
-- **Contributions**: Provide a specific description of contributions.
+- **Contributions**: Added in logic for both Task 1.8 and 1.9 (as described above).
 
 ### Member 2: [Silvia Alemany] 
 - **Tasks Worked On**: Task 1.1, Task 1.2
