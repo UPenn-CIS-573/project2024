@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 public class DataManager_attemptLogin_Test {
     @Test
-    public void test() {
+    public void testAllCorrect() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 
             @Override
@@ -35,7 +35,7 @@ public class DataManager_attemptLogin_Test {
        assertEquals("test2", f.getDescription());
        assertEquals(21203, f.getTarget());
        assertEquals(68000, d.getAmount());
-       assertEquals("2024-06-09", d.getDate());
+       assertEquals("June 09, 2024", d.getDate());
     }
 
     @Test

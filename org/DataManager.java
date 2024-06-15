@@ -1,10 +1,5 @@
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
+import java.util.*;
 import java.text.SimpleDateFormat;
 
 import org.json.simple.JSONArray;
@@ -31,6 +26,7 @@ public class DataManager {
 		if (login.isEmpty() || password.isEmpty()) {
 			return null;
 		}
+
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("login", login);
@@ -100,8 +96,8 @@ public class DataManager {
 		try {
 
 			Map<String, Object> map = new HashMap<>();
-			map.put("_id", id);
-			String response = client.makeRequest("/findContributrNameById", map);
+			map.put("id", id);
+			String response = client.makeRequest("/findContributorNameById", map);
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
@@ -162,7 +158,7 @@ public class DataManager {
 	}
 
 	public String parseDateFormat(String date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 		Date d = null;
 		try {
 			d = sdf.parse(date);
@@ -170,7 +166,7 @@ public class DataManager {
 			e.printStackTrace();
 			return null;
 		}
-		sdf = new SimpleDateFormat("MMMM dd, yyyy");
+		sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
 		return sdf.format(d);
 	}
 
