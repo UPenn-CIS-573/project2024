@@ -41,3 +41,16 @@ throw IllegalStateException when response is null; catch this error in the main 
 ## 1.10 Date formatting (Ruxi Xu)
 
 Format the date string in `UserInterface` and set the donation.
+
+----
+
+# Phase 2
+
+## 2.10 Encryptation (Boshu Lei)
+
+Execution
+
+```
+ node --security-revert=CVE-2023-46809 .\api.js
+ node .\admin.js
+```

@@ -166,7 +166,7 @@ public class UserInterface {
 
 		Organization org = null;
 		try{
-			org = ds.attemptLogin(login, password);
+			org = ds.attemptLogin(login, password, "public_key.pem");
 		} catch (IllegalStateException e) {
 			System.out.println("Error in communicating with server.");
 			return;

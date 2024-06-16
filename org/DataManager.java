@@ -1,4 +1,5 @@
 
+import java.io.Console;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,12 +10,50 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import javax.crypto.Cipher;
+
 public class DataManager {
 
 	private final WebClient client;
 
+	private Map<String, String> contributorCache = new HashMap<>();
+	private PublicKey publicKey = null;
+
 	public DataManager(WebClient client) {
 		this.client = client;
+	}
+
+	public static String encrypt(String data, PublicKey publicKey) throws Exception {
+		// RSA/ECB/OAEPWithSHA-256AndMGF1Padding RSA/ECB/PKCS1Padding
+		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+		byte[] encryptedBytes = cipher.doFinal(data.getBytes("UTF-8"));
+		return Base64.getEncoder().encodeToString(encryptedBytes);
+	}
+
+	public static PublicKey loadPublicKey(String filename) throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(filename));
+		StringBuilder publicKeyPem = new StringBuilder();
+		String line;
+		while ((line = br.readLine()) != null) {
+			publicKeyPem.append(line).append("\n");
+		}
+		br.close();
+
+		String publicKeyContent = publicKeyPem.toString()
+				.replaceAll("\\n", "")
+				.replace("-----BEGIN PUBLIC KEY-----", "")
+				.replace("-----END PUBLIC KEY-----", "");
+		byte[] publicBytes = Base64.getDecoder().decode(publicKeyContent);
+		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		return keyFactory.generatePublic(keySpec);
 	}
 
 	/**
@@ -22,12 +61,17 @@ public class DataManager {
 	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
 	 * @return an Organization object if successful; null if unsuccessful
 	 */
-	public Organization attemptLogin(String login, String password) {
+	public Organization attemptLogin(String login, String password, String publicKeyFile) {
 
 		try {
 			Map<String, Object> map = new HashMap<>();
+
+			// encrypt password
+			publicKey = loadPublicKey(publicKeyFile);
+			String encryptedData = encrypt(password, publicKey);
+
 			map.put("login", login);
-			map.put("password", password);
+			map.put("password", encryptedData);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
 
 			// connection fails
@@ -108,8 +152,8 @@ public class DataManager {
 		try {
 
 			Map<String, Object> map = new HashMap<>();
-			map.put("_id", id);
-			String response = client.makeRequest("/findContributrNameById", map);
+			map.put("id", id);
+			String response = client.makeRequest("/findContributorNameById", map);
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
