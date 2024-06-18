@@ -44,7 +44,10 @@ public class UserInterface {
 			int option = -1;
 			boolean novalid = true;
 			while (novalid) {
-				
+				if (input.equals("quit") || input.equals("q")) {
+					System.out.println("Goodbye!");
+					break;
+				}
 				
 				try {
 					option = Integer.parseInt(input);
@@ -142,6 +145,18 @@ public class UserInterface {
                 System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
                 totalDonations += donation.getAmount();
             }
+
+			System.out.println("Show Aggregate Donations? (Y/n)");
+			String input = in.nextLine();
+			if (!input.equals("n")) {
+				System.out.println("Aggregate Donations:");
+				List<AggregateDonation> sorted = fund.getSortedAggregateDonations();
+				for (AggregateDonation ad : sorted) {
+					System.out.println("* " + ad.getContributorName() + ": $" + ad.getTotal());
+				}
+
+			}
+
         } else {
             System.out.println("Invalid fund number");
         }
@@ -169,6 +184,7 @@ public class UserInterface {
 			org = ds.attemptLogin(login, password);
 		} catch (IllegalStateException e) {
 			System.out.println("Error in communicating with server.");
+			System.out.println(e.getMessage());
 			return;
 		}
 		
