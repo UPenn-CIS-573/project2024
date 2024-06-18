@@ -148,12 +148,23 @@ public class DataManager {
 	 * @return the name of the contributor on success; null if no contributor is found
 	 */
 	public String getContributorName(String id) {
+		// ID is null
+		if (id == null) {
+			throw new IllegalArgumentException("[Invalid Input] Contributor ID cannot be empty.");
+		}
 
 		try {
+			if (contributorCache.containsKey(id)) {
+				return contributorCache.get(id);
+			}
 
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
+
+			if (response == null) {
+				throw new IllegalStateException("[Error in communicating with server] fail to find contributor.");
+			}
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
@@ -161,10 +172,10 @@ public class DataManager {
 
 			if (status.equals("success")) {
 				String name = (String)json.get("data");
+				contributorCache.put(id, name);
 				return name;
 			}
 			else return null;
-
 
 		}
 		catch (Exception e) {
