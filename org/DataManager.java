@@ -1,6 +1,7 @@
 
 import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,6 +38,8 @@ public class DataManager {
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
 
+			// create cache
+			final Map<String, String> contributorNameCache = new HashMap<>();
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
@@ -62,7 +65,21 @@ public class DataManager {
 					while(it2.hasNext()){
 						JSONObject donation = (JSONObject) it2.next();
 						String contributorId = (String)donation.get("contributor");
-						String contributorName = this.getContributorName(contributorId);
+
+						String contributorName = null;
+						if (contributorId != null) {
+							// query cache
+							contributorName = contributorNameCache.get(contributorId);
+							// cache miss
+							if (contributorName == null) {
+								contributorName = this.getContributorName(contributorId);
+								// update cache
+								if (contributorName != null) {
+									contributorNameCache.put(contributorId, contributorName);
+								}
+							}
+						}
+
 						long amount = (Long)donation.get("amount");
 						String date = parseDateFormat((String)donation.get("date"));
 						donationList.add(new Donation(fundId, contributorName, amount, date));

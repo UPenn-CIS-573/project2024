@@ -35,6 +35,9 @@ public class DataManager {
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
+            // create cache
+            final Map<String, String> fundNameCache = new HashMap<>();
+
             if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
                 String id = (String)data.get("_id");
@@ -55,8 +58,19 @@ public class DataManager {
                 for (int i = 0; i < donations.length(); i++) {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
+                    String fundId = (String) jsonDonation.get("fund");
 
-                    String fund = getFundName((String)jsonDonation.get("fund"));
+                    // query cache
+                    String fund = fundNameCache.get(fundId);
+                    // cache miss
+                    if (fund == null) {
+                        fund = getFundName(fundId);
+                        // update cache
+                        if (fund != null) {
+                            fundNameCache.put(fundId, fund);
+                        }
+                    }
+
                     String date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
 
