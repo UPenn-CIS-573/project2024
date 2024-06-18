@@ -9,6 +9,7 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -62,9 +63,27 @@ public class DataManager {
 	 * @return an Organization object if successful; null if unsuccessful
 	 */
 	public Organization attemptLogin(String login, String password, String publicKeyFile) {
-
+		if (login == null || login.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Login cannot be empty.");
+		}
+		if (password == null || password.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Password cannot be empty.");
+		}
 		try {
 			Map<String, Object> map = new HashMap<>();
+
+			if (login.matches("\\w+")){
+				map.put("login", login);
+			}else {
+				throw new IllegalArgumentException("[Invalid login ID] Login must be alphanumeric.");
+			}
+
+			//check illegal password value
+			if (login.matches("\\w+")){
+				map.put("password", password);}
+			else {
+				throw new IllegalArgumentException("[Invalid password] Password must be alphanumeric.");
+			}
 
 			// encrypt password
 			publicKey = loadPublicKey(publicKeyFile);
@@ -130,11 +149,22 @@ public class DataManager {
 
 				return org;
 			}
-			else return null;
+			else {
+				throw new IllegalStateException("[Error in communicating with server] fail to login.");
+			}
+		}
+		catch (ParseException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to login.");
 		}
 		catch (IllegalStateException e) {
 			// rethrow the exception
 			throw e;
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
+		}
+		catch (NullPointerException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to login.");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -149,10 +179,12 @@ public class DataManager {
 	 */
 	public String getContributorName(String id) {
 		// ID is null
-		if (id == null) {
+		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("[Invalid Input] Contributor ID cannot be empty.");
 		}
-
+		if (client == null) {
+			throw new IllegalStateException("[Invalid State] WebClient cannot be null.");
+		}
 		try {
 			if (contributorCache.containsKey(id)) {
 				return contributorCache.get(id);
@@ -167,7 +199,12 @@ public class DataManager {
 			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			JSONObject json;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("[Error in communicating with server] fail to find contributor.");
+			}
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
@@ -175,12 +212,23 @@ public class DataManager {
 				contributorCache.put(id, name);
 				return name;
 			}
-			else return null;
+			else{
+				throw new IllegalStateException("[Error in communicating with server] fail to find contributor.");
+			}
 
+ 		} catch (NullPointerException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to find contributor.");
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
 		}
 		catch (Exception e) {
 			return null;
-		}	
+		}
 	}
 
 	public static String MonthLiteral(String month_int){
@@ -233,7 +281,21 @@ public class DataManager {
 	 * @return a new Fund object if successful; null if unsuccessful
 	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
-
+		if (client == null) {
+			throw new IllegalStateException("[Invalid State] WebClient cannot be null.");
+		}
+		if (orgId == null || orgId.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Organization ID cannot be null or empty.");
+		}
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Fund name cannot be null or empty.");
+		}
+		if (description == null) {
+			throw new IllegalArgumentException("[Invalid Input] Description cannot be null.");
+		}
+		if (target < 0) {
+			throw new IllegalArgumentException("[Invalid Input] Target cannot be negative.");
+		}
 		try {
 
 			Map<String, Object> map = new HashMap<>();
@@ -243,17 +305,40 @@ public class DataManager {
 			map.put("target", target);
 			String response = client.makeRequest("/createFund", map);
 
+			if (response == null) {
+				throw new IllegalStateException("[Error in communicating with server] fail to create fund.");
+			}
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			JSONObject json = null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("[Error in communicating with server] fail to create fund.");
+			}
 			String status = (String)json.get("status");
+			if ("error".equals(status)) {
+				throw new IllegalStateException("[Error in communicating with server] fail to create fund.");
+			}
 
 			if (status.equals("success")) {
 				JSONObject fund = (JSONObject)json.get("data");
 				String fundId = (String)fund.get("_id");
 				return new Fund(fundId, name, description, target);
 			}
-			else return null;
+			else{
+				throw new IllegalStateException("[Error in communicating with server] fail to create fund.");
+			}
 
+		}
+		catch (NullPointerException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to create fund.");
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
