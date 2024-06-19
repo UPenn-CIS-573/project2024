@@ -56,6 +56,15 @@ private Map<String, String> contributorCache = new HashMap<>();
 
 Each time when calling `getContributorName` method, the program will first check whether the Cache contains the id. If it contains, then the data in cache will be returned. Otherwise, the programm will query the server for the name. 
 
+## 2.2 (Ruxi Xu)
+
+Added `DataManagerRobustnessTests.java` in Organization App. All thest are passed.
+UI is updated to display meaningful error message.
+
+## 2.8 (Ruxi Xu)
+
+Added logout function in UI classes; login again feature is also added to let user log back in after logout.
+
 ## 2.10 Encryptation (Boshu Lei)
 
 Prepare the `public_key.pem` under `\org` and `\admin` folder. Prepare the `private_key.pem` under `\admin` folder. 
