@@ -15,6 +15,7 @@ public class DataManager {
     private WebClient client;
 
     public DataManager(WebClient client) {
+
         this.client = client;
     }
 
@@ -25,12 +26,22 @@ public class DataManager {
      * @return the Contributor object if successfully logged in, null otherwise
      */
     public Contributor attemptLogin(String login, String password) {
+        if (client == null) {
+            throw new IllegalStateException("WebClient is null");
+        }
+        if (login == null || password == null) {
+            throw new IllegalArgumentException("Login or password is null");
+        }
 
         try {
             Map<String, Object> map = new HashMap<>();
             map.put("login", login);
             map.put("password", password);
             String response = client.makeRequest("/findContributorByLoginAndPassword", map);
+
+            if (response == null) {
+                throw new IllegalStateException("WebClient returned null");
+            }
 
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
@@ -83,14 +94,13 @@ public class DataManager {
 
                 return contributor;
 
+            } else {
+                throw new IllegalStateException("Error in response: " + json.getString("error"));
             }
-
-            return null;
 
         }
         catch (Exception e) {
-            e.printStackTrace();
-            return null;
+           throw new IllegalStateException("Exception during login", e);
         }
     }
 
@@ -99,6 +109,12 @@ public class DataManager {
      * @return the name of the fund if found, "Unknown fund" if not found, null if an error occurs
      */
     public String getFundName(String id) {
+        if (client == null) {
+            throw new IllegalStateException("WebClient is null");
+        }
+        if (id == null) {
+            throw new IllegalArgumentException("Fund ID is null");
+        }
 
         try {
 
@@ -106,19 +122,18 @@ public class DataManager {
             map.put("id", id);
             String response = client.makeRequest("/findFundNameById", map);
 
-            JSONObject json = new JSONObject(response);
-            String status = (String)json.get("status");
-
-            if (status.equals("success")) {
-                String name = (String)json.get("data");
-                return name;
+            if (response == null) {
+                throw new IllegalStateException("WebClient returned null");
             }
-            else return "Unknown Fund";
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            JSONObject json = new JSONObject(response);
+            String status = (String) json.getString("status");
+
+            if (!status.equals("success")) {
+                throw new IllegalStateException("Error in response: " + json.getString("error"));
+            } return json.getString("fundName");
+        } catch (Exception e) {
+            throw new IllegalStateException("Exception during getFundName", e);
         }
     }
 
@@ -128,12 +143,20 @@ public class DataManager {
      * @return a List of Organization objects if successful, null otherwise
      */
     public List<Organization> getAllOrganizations() {
+        if (client == null) {
+            throw new IllegalStateException("WebClient is null");
+        }
+
         try {
             Map<String, Object> map = new HashMap<>();
             String response = client.makeRequest("/allOrgs", map);
 
+            if (response == null) {
+                throw new IllegalStateException("WebClient returned null");
+            }
+
             JSONObject json = new JSONObject(response);
-            String status = (String)json.get("status");
+            String status = (String)json.getString("status");
 
             if (status.equals("success")) {
 
@@ -145,23 +168,23 @@ public class DataManager {
 
                     JSONObject obj = data.getJSONObject(i);
 
-                    String id = (String)obj.get("_id");
-                    String name = (String)obj.get("name");
+                    String id = obj.getString("_id");
+                    String name = obj.getString("name");
 
                     Organization org = new Organization(id, name);
 
                     List<Fund> fundList = new LinkedList<>();
 
-                    JSONArray array = (JSONArray)obj.get("funds");
+                    JSONArray array = obj.getJSONArray("funds");
 
                     for (int j = 0; j < array.length(); j++) {
 
                         JSONObject fundObj = array.getJSONObject(j);
 
-                        id = (String)fundObj.get("_id");
-                        name = (String)fundObj.get("name");
-                        long target = (Integer)fundObj.get("target");
-                        long totalDonations = (Integer)fundObj.get("totalDonations");
+                        id = fundObj.getString("_id");
+                        name = fundObj.getString("name");
+                        long target = fundObj.getInt("target");
+                        long totalDonations = fundObj.getInt("totalDonations");
 
                         Fund fund = new Fund(id, name, target, totalDonations);
 
@@ -177,14 +200,13 @@ public class DataManager {
 
                 return organizations;
 
+            } else {
+                throw new IllegalStateException("Error in response: " + json.getString("error"));
             }
-
-            return null;
 
         }
         catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new IllegalStateException("Exception during getAllOrganizations", e);
         }
     }
 
@@ -194,6 +216,18 @@ public class DataManager {
      * @return true if successful, false otherwise
      */
     public boolean makeDonation(String contributorId, String fundId, String amount) {
+        if (client == null) {
+            throw new IllegalStateException("WebClient is null");
+        }
+        if (contributorId == null || fundId == null || amount == null) {
+            throw new IllegalArgumentException("Contributor ID, Fund ID, or amount is null");
+        }
+
+        try {
+            Integer.parseInt(amount);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Amount is non-numeric", e);
+        }
 
         try {
 
@@ -202,17 +236,22 @@ public class DataManager {
             map.put("fund", fundId);
             map.put("amount", amount);
             String response = client.makeRequest("/makeDonation", map);
+
+            if (response == null) {
+                throw new IllegalStateException("WebClient returned null");
+            }
             
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
-            return status.equals("success");
+            if (!status.equals("success")) {
+                throw new IllegalStateException("Error in reponse: " + json.getString("error"));
+            }
+            return true;
 
         }
         catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            throw new IllegalStateException("Exception during makeDonation");
         }
-
     }
 }
