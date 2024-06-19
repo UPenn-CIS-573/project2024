@@ -20,7 +20,9 @@ Check fund id to be valid.
 
 ## 1.3 **main menu input handling** (Tim Song)
 
-Add quit goodbye; While loop, parse input string to get valid option
+Add quit goodbye; 
+
+Add while loops to parse input string until the program get a valid option
 
 ## 1.4 D**isplay total donations for fund** (Ruxi Xu)
 
@@ -28,11 +30,11 @@ modified displayFund function in UserInterface to show total amount of donation 
 
 ## 1.8 **createFund input error handling** (Tim Song)
 
-loop name blank
+Add while loops to detect blank names
 
-loop description blank
+Add while loops to detect blank descriptions
 
-target number positive
+Add while loops to parse target number, until the program gets a positive target number.
 
 ## 1.9 Login Error Handle (Boshu Lei)
 
@@ -41,3 +43,10 @@ throw IllegalStateException when response is null; catch this error in the main 
 ## 1.10 Date formatting (Ruxi Xu)
 
 Format the date string in `UserInterface` and set the donation.
+
+
+## 2.3 Organization App aggregate donations by contributor (Tim Song)
+
+I create a new class `AggregateDonation` which contains the aggregated donation information for each fund.
+It is created during the creation of that fund in the memory.
+
