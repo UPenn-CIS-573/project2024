@@ -17,7 +17,7 @@ public class UserInterface {
 				
 		while (true) {
 			System.out.println("\n\n");
-			if (org.getFunds().size() > 0) {
+			if (!org.getFunds().isEmpty()) {
 				System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
 			
 				int count = 1;
@@ -167,8 +167,42 @@ public class UserInterface {
 
         System.out.println("Total donation amount: $" + totalDonations + "(" + percentage + "% of " +
                 "the target)");
+
         System.out.println("Press the Enter key to go back to the listing of funds");
-        in.nextLine();
+		System.out.println(("Enter d to delete this fund"));
+		while(true) {
+			String input = in.nextLine();
+			if (input.isEmpty()) {
+				break;
+			}
+			else if (input.equals("d")) {
+				System.out.println("Are you sure you want to delete this fund? (y/n)");
+				String confirm = in.nextLine();
+				if (confirm.equals("y")) {
+					boolean success = dataManager.deleteFund(fund.getId());
+					if (!success) {
+						System.out.println("Failed to delete fund.");
+					}
+					else {
+						org.getFunds().remove(fundNumber - 1);
+						System.out.println("Fund deleted.");
+						break;
+					}
+				}
+				else if (confirm.equals("n")) {
+					continue;
+				}
+				else {
+					System.out.println("Invalid input. Please re-enter.");
+				}
+			}
+			else
+			{
+				System.out.println("Invalid input. Please re-enter.");
+			}
+		}
+
+
     }
 	
 	

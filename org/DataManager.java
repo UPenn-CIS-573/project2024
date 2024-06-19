@@ -117,6 +117,7 @@ public class DataManager {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
+
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
@@ -207,13 +208,42 @@ public class DataManager {
 				String fundId = (String)fund.get("_id");
 				return new Fund(fundId, name, description, target);
 			}
-			else return null;
+			else
+			{
+				System.out.println("Error Status: " + status);
+				return null;
+			}
+
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Error in createFund: " + e.getMessage());
 			return null;
 		}	
+	}
+
+	// delete fund
+	public boolean deleteFund(String fundId) {
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", fundId);
+			String response = client.makeRequest("/deleteFund", map);
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String)json.get("status");
+			if (status.equals("success")) {
+				return true;
+			}
+			else
+			{
+				System.out.println("Error Status: " + status);
+				return false;
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Error in deleteFund: " + e.getMessage());
+			return false;
+		}
 	}
 
 
