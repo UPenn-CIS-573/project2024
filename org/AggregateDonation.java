@@ -8,6 +8,7 @@ public class AggregateDonation {
     private long total;
 
     public AggregateDonation(String contributorId, String contributorName) {
+        this.contributorId = contributorId;
         this.contributorName = contributorName;
         this.times = 0;
         this.total = 0;
@@ -16,6 +17,8 @@ public class AggregateDonation {
     public AggregateDonation(String contributorId, String contributorName, long total) {
         this.times = 1;
         this.total = total;
+        this.contributorName = contributorName;
+        this.contributorId = contributorId;
     }
 
     public void increaseDonation(long amount) {
