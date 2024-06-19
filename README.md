@@ -20,7 +20,9 @@ Check fund id to be valid.
 
 ## 1.3 **main menu input handling** (Tim Song)
 
-Add quit goodbye; While loop, parse input string to get valid option
+Add quit goodbye; 
+
+Add while loops to parse input string until the program get a valid option
 
 ## 1.4 D**isplay total donations for fund** (Ruxi Xu)
 
@@ -28,11 +30,11 @@ modified displayFund function in UserInterface to show total amount of donation 
 
 ## 1.8 **createFund input error handling** (Tim Song)
 
-loop name blank
+Add while loops to detect blank names
 
-loop description blank
+Add while loops to detect blank descriptions
 
-target number positive
+Add while loops to parse target number, until the program gets a positive target number.
 
 ## 1.9 Login Error Handle (Boshu Lei)
 
@@ -60,6 +62,16 @@ Each time when calling `getContributorName` method, the program will first check
 
 Added `DataManagerRobustnessTests.java` in Organization App. All thest are passed.
 UI is updated to display meaningful error message.
+
+## 2.3 Organization App aggregate donations by contributor (Tim Song)
+
+I create a new class `AggregateDonation` which contains the aggregated donation information for each fund.
+It is created during the creation of that fund in the memory.
+
+## 2.7 Organization App delete fund
+I append a while loop in the end of display fund function to ask the user whether to delete this fund. 
+I add a new function in the DataManager class, and also delete the fund info in the memory object.
+I add unit test and mock objects to test the new function.
 
 ## 2.8 (Ruxi Xu)
 
