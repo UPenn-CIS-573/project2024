@@ -65,8 +65,8 @@ public class UserInterface {
                 break;
             }
             else if (choice.equals("logout")) {
-                System.out.println("Logging out...");
-                this.org = null;
+                System.out.println("Logging out... \n\n");
+                org = null;
                 login();
                 break;
             }
