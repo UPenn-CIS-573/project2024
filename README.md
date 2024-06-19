@@ -46,9 +46,21 @@ Format the date string in `UserInterface` and set the donation.
 
 # Phase 2
 
+## 2.1 Cache
+
+In `DataManager`, a hash map is used for caching. 
+
+```Java
+private Map<String, String> contributorCache = new HashMap<>();
+```
+
+Each time when calling `getContributorName` method, the program will first check whether the Cache contains the id. If it contains, then the data in cache will be returned. Otherwise, the programm will query the server for the name. 
+
 ## 2.10 Encryptation (Boshu Lei)
 
-Execution
+Prepare the `public_key.pem` under `\org` and `\admin` folder. Prepare the `private_key.pem` under `\admin` folder. 
+
+When launching javascript, please use the following command.
 
 ```
  node --security-revert=CVE-2023-46809 .\api.js
