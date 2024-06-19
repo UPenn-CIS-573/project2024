@@ -21,7 +21,7 @@ public class DataManager_attemptLogin_Test {
 			}
 		});
 
-		Organization org = dm.attemptLogin("login", "password");
+		Organization org = dm.attemptLogin("login", "password", "public_key.pem");
 		assertNotNull(org);
 		assertEquals("123", org.getId());
 		assertEquals("new fund", org.getName());
@@ -50,7 +50,7 @@ public class DataManager_attemptLogin_Test {
 
 		});
 
-		Organization org = dm.attemptLogin("login", "password");
+		Organization org = dm.attemptLogin("login", "password", "public_key.pem");
 		assertNull(org);
 	}
 
@@ -66,7 +66,7 @@ public class DataManager_attemptLogin_Test {
 
 		});
 
-		Organization org = dm.attemptLogin("login", "password");
+		Organization org = dm.attemptLogin("login", "password", "public_key.pem");
 		assertNull(org);
 	}
 }

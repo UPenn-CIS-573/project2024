@@ -6,28 +6,56 @@ const {Fund} = require('./DbConfig.js');
 const {Contributor} = require('./DbConfig.js');
 const {Donation} = require('./DbConfig.js');
 
+const fs = require('fs');
+const crypto = require('crypto');
+
+// Load the private key from the file
+const privateKey = fs.readFileSync('private_key.pem', { encoding: 'utf-8' });
+
+// Decrypt data function
+function decrypt(encryptedData) {
+	const buffer = Buffer.from(encryptedData, 'base64');
+	const decrypted = crypto.privateDecrypt(
+	  {
+		key: privateKey,
+		padding: crypto.constants.RSA_PKCS1_PADDING,
+	  },
+	  buffer,
+	);
+	return decrypted.toString('utf8');
+  }
 
 /*
 Return an org with login specified as req.query.login and password specified as 
 req.query.password; this essentially acts as login for organizations
 */
 app.use('/findOrgByLoginAndPassword', (req, res) => {
-
-	var query = {"login" : req.query.login, "password" : req.query.password };
-    
-	Organization.findOne( query, (err, result) => {
-		if (err) {
-		    res.json({ "status": "error", "data" : err});
-		}
-		else if (!result){
-		    res.json({ "status": "login failed" });
-		}
-		else {
-		    //console.log(result);
-		    res.json({ "status" : "success", "data" : result});
-		}
-	    });
-    });
+	// Use SHA256 to decode the password
+	// replace " " with "+"
+	let modifiedString = req.query.password.replace(/\s/g, "+");
+	
+	// try decrypt the password
+	try {
+		var password = decrypt(modifiedString);
+		console.log(req.query.login, password);
+		var query = {"login" : req.query.login, "password" : password };
+		
+		Organization.findOne( query, (err, result) => {
+			if (err) {
+				res.json({ "status": "error", "data" : err});
+			}
+			else if (!result){
+				res.json({ "status": "login failed" });
+			}
+			else {
+				//console.log(result);
+				res.json({ "status" : "success", "data" : result});
+			}
+			});
+	} catch (err) {
+		res.json({ "status": "error", "data" : "Decode Fail"});
+	}
+});
 
 /*
 Create a new fund
