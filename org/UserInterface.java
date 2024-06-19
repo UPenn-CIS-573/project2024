@@ -168,9 +168,10 @@ public class UserInterface {
         System.out.println("Total donation amount: $" + totalDonations + "(" + percentage + "% of " +
                 "the target)");
 
-        System.out.println("Press the Enter key to go back to the listing of funds");
-		System.out.println(("Enter d to delete this fund"));
+
 		while(true) {
+			System.out.println("Press the Enter key to go back to the listing of funds");
+			System.out.println(("Enter d to delete this fund"));
 			String input = in.nextLine();
 			if (input.isEmpty()) {
 				break;
@@ -195,6 +196,7 @@ public class UserInterface {
 				else {
 					System.out.println("Invalid input. Please re-enter.");
 				}
+
 			}
 			else
 			{
