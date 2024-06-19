@@ -13,6 +13,7 @@ import org.json.JSONArray;
 public class DataManager {
 
     private WebClient client;
+    private HashMap<String, String> cacheFundName = new HashMap<>();
 
     public DataManager(WebClient client) {
         this.client = client;
@@ -31,48 +32,40 @@ public class DataManager {
             map.put("login", login);
             map.put("password", password);
             String response = client.makeRequest("/findContributorByLoginAndPassword", map);
-
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
-
             if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
-                String id = (String)data.get("_id");
-                String name = (String)data.get("name");
-                String email = (String)data.get("email");
-                String creditCardNumber = (String)data.get("creditCardNumber");
-                String creditCardCVV = (String)data.get("creditCardCVV");
-                String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
-                String creditCardExpiryYear = ((Integer)data.get("creditCardExpiryYear")).toString();
-                String creditCardPostCode = (String)data.get("creditCardPostCode");
-
-                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
-
+                String id = (String)data.get("_id"),
+                        name = (String)data.get("name"),
+                        email = (String)data.get("email"),
+                        creditCardNumber = (String)data.get("creditCardNumber"),
+                        creditCardCVV = (String)data.get("creditCardCVV"),
+                        creditCardExpiryMonth = (
+                                (Integer)data.get("creditCardExpiryMonth")).toString(),
+                        creditCardExpiryYear = (
+                                (Integer)data.get("creditCardExpiryYear")).toString(),
+                        creditCardPostCode = (String)data.get("creditCardPostCode");
+                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
                 List<Donation> donationList = new LinkedList<>();
-
                 JSONArray donations = (JSONArray)data.get("donations");
-
                 for (int i = 0; i < donations.length(); i++) {
-
                     JSONObject jsonDonation = donations.getJSONObject(i);
-
-                    String fund = getFundName((String)jsonDonation.get("fund"));
-                    String date = (String)jsonDonation.get("date");
+                    String fId = (String)jsonDonation.get("fund"),
+                            fund = cacheFundName.getOrDefault(fId, null),
+                            date = (String)jsonDonation.get("date");
+                    if (fund == null) {
+                        fund = getFundName(fId);
+                        cacheFundName.put(fId, fund);
+                    }
                     long amount = (Integer)jsonDonation.get("amount");
-
                     Donation donation = new Donation(fund, name, amount, date);
                     donationList.add(donation);
-
                 }
-
                 contributor.setDonations(donationList);
-
                 return contributor;
-
             }
-
             return null;
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -85,22 +78,23 @@ public class DataManager {
      * @return the name of the fund if found, "Unknown fund" if not found, null if an error occurs
      */
     public String getFundName(String id) {
-
+        if (cacheFundName.containsKey(id)) {
+            return cacheFundName.get(id);
+        }
         try {
-
             Map<String, Object> map = new HashMap<>();
             map.put("id", id);
             String response = client.makeRequest("/findFundNameById", map);
-
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
-
             if (status.equals("success")) {
-                String name = (String)json.get("data");
+                String name = (String)json.get("data").toString();
+                cacheFundName.put(id, name);
                 return name;
             }
-            else return "Unknown Fund";
-
+            else {
+                return "Unknown Fund";
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -188,7 +182,7 @@ public class DataManager {
             map.put("fund", fundId);
             map.put("amount", amount);
             String response = client.makeRequest("/makeDonation", map);
-            
+
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
@@ -199,6 +193,5 @@ public class DataManager {
             e.printStackTrace();
             return false;
         }
-
     }
 }

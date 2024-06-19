@@ -1,4 +1,3 @@
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,14 +11,18 @@ import org.json.simple.parser.JSONParser;
 public class DataManager {
 
 	private final WebClient client;
+	private Map<String, String> contributorCache;
 
 	public DataManager(WebClient client) {
 		this.client = client;
+		this.contributorCache = new HashMap<>();
 	}
 
 	/**
-	 * Attempt to log the user into an Organization account using the login and password.
+	 * Attempt to log the user into an Organization account using the login and
+	 * password.
 	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
+	 * 
 	 * @return an Organization object if successful; null if unsuccessful
 	 */
 	public Organization attemptLogin(String login, String password) {
@@ -32,36 +35,39 @@ public class DataManager {
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
-
+			String status = (String) json.get("status");
 
 			if (status.equals("success")) {
-				JSONObject data = (JSONObject)json.get("data");
-				String fundId = (String)data.get("_id");
-				String name = (String)data.get("name");
-				String description = (String)data.get("descrption");
-				Organization org = new Organization(fundId, name, description);
+				JSONObject data = (JSONObject) json.get("data");
+				String orgId = (String) data.get("_id");
+				String orgName = (String) data.get("name");
+				String orgDescription = (String) data.get("description");
 
-				JSONArray funds = (JSONArray)data.get("funds");
+				Organization org = new Organization(orgId, orgName, orgDescription);
+				String fundId;
+				String fundName;
+				String fundDescription;
+				JSONArray funds = (JSONArray) data.get("funds");
+
 				Iterator it = funds.iterator();
-				while(it.hasNext()){
-					JSONObject fund = (JSONObject) it.next(); 
-					fundId = (String)fund.get("_id");
-					name = (String)fund.get("name");
-					description = (String)fund.get("description");
-					long target = (Long)fund.get("target");
+				while (it.hasNext()) {
+					JSONObject fund = (JSONObject) it.next();
+					fundId = (String) fund.get("_id");
+					fundName = (String) fund.get("name");
+					fundDescription = (String) fund.get("description");
+					long target = (Long) fund.get("target");
 
-					Fund newFund = new Fund(fundId, name, description, target);
+					Fund newFund = new Fund(fundId, fundName, fundDescription, target);
 
-					JSONArray donations = (JSONArray)fund.get("donations");
+					JSONArray donations = (JSONArray) fund.get("donations");
 					List<Donation> donationList = new LinkedList<>();
 					Iterator it2 = donations.iterator();
-					while(it2.hasNext()){
+					while (it2.hasNext()) {
 						JSONObject donation = (JSONObject) it2.next();
-						String contributorId = (String)donation.get("contributor");
+						String contributorId = (String) donation.get("contributor");
 						String contributorName = this.getContributorName(contributorId);
-						long amount = (Long)donation.get("amount");
-						String date = (String)donation.get("date");
+						long amount = (Long) donation.get("amount");
+						String date = (String) donation.get("date");
 						donationList.add(new Donation(fundId, contributorName, amount, date));
 					}
 
@@ -72,10 +78,9 @@ public class DataManager {
 				}
 
 				return org;
-			}
-			else return null;
-		}
-		catch (Exception e) {
+			} else
+				return null;
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -84,35 +89,43 @@ public class DataManager {
 	/**
 	 * Look up the name of the contributor with the specified ID.
 	 * This method uses the /findContributorNameById endpoint in the API.
-	 * @return the name of the contributor on success; null if no contributor is found
+	 * 
+	 * @return the name of the contributor on success; null if no contributor is
+	 *         found
 	 */
 	public String getContributorName(String id) {
+		if (contributorCache.containsKey(id)) {
+			return contributorCache.get(id);
+		} else {
+			try {
 
-		try {
+				Map<String, Object> map = new HashMap<>();
+				map.put("id", id);
+				String response = client.makeRequest("/findContributorNameById", map);
 
-			Map<String, Object> map = new HashMap<>();
-			map.put("_id", id);
-			String response = client.makeRequest("/findContributrNameById", map);
+				JSONParser parser = new JSONParser();
+				JSONObject json = (JSONObject) parser.parse(response);
+				String status = (String) json.get("status");
 
-			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+				if (status.equals("success")) {
+					String name = (String) json.get("data");
+					contributorCache.put(id, name);
+					return name;
+				} else {
+					return null;
+				}
 
-			if (status.equals("success")) {
-				String name = (String)json.get("data");
-				return name;
+			} catch (Exception e) {
+				return null;
 			}
-			else return null;
-
-
 		}
-		catch (Exception e) {
-			return null;
-		}	
+
 	}
 
 	/**
-	 * This method creates a new fund in the database using the /createFund endpoint in the API
+	 * This method creates a new fund in the database using the /createFund endpoint
+	 * in the API
+	 * 
 	 * @return a new Fund object if successful; null if unsuccessful
 	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
@@ -128,21 +141,18 @@ public class DataManager {
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+			String status = (String) json.get("status");
 
 			if (status.equals("success")) {
-				JSONObject fund = (JSONObject)json.get("data");
-				String fundId = (String)fund.get("_id");
-				return new Fund(fundId, name, description, target);
-			}
-			else return null;
+				JSONObject fund = (JSONObject) json.get("data");
+				return new Fund(orgId, name, description, target);
+			} else
+				return null;
 
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
-
 
 }
