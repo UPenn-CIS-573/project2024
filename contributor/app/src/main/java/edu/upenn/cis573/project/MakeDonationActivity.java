@@ -142,6 +142,27 @@ public class MakeDonationActivity extends AppCompatActivity {
         Contributor contributor = MainActivity.contributor;
         String contributorId = contributor.getId();
 
+        try {
+            boolean success = dataManager.makeDonation(MainActivity.contributor.getId(), fundId, amount);
+
+            if (success) {
+                Toast.makeText(this, "Thank you for your donation!", Toast.LENGTH_LONG).show();
+                // Add your logic for handling success
+            } else {
+                Toast.makeText(this, "Sorry, something went wrong during donation!", Toast.LENGTH_LONG).show();
+                // Add your logic for handling failure
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
+            // Add your logic for retrying operation or notifying the user
+        }
+
+        if (fundId.equals("0")) {
+            Toast.makeText(this, "Sorry, this Organization does not have any Funds.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Log.v("makeDonation", orgId + " " + fundId + " " + amount + " " + contributorId);
 
         boolean success = dataManager.makeDonation(contributorId, fundId, amount);
