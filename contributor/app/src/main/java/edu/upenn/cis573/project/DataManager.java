@@ -15,6 +15,9 @@ public class DataManager {
     private WebClient client;
 
     public DataManager(WebClient client) {
+        if(client == null){
+            throw new IllegalStateException("WebClien is null in constructor");
+        }
         this.client = client;
     }
 
@@ -25,28 +28,48 @@ public class DataManager {
      * @return the Contributor object if successfully logged in, null otherwise
      */
     public Contributor attemptLogin(String login, String password) {
-
+        if(login == null){
+            throw new IllegalArgumentException("attemptLogin: login is null");
+        }
+        if(password == null){
+            throw new IllegalArgumentException("attemptLogin: password is null");
+        }
         try {
             Map<String, Object> map = new HashMap<>();
             map.put("login", login);
             map.put("password", password);
             String response = client.makeRequest("/findContributorByLoginAndPassword", map);
-
-            JSONObject json = new JSONObject(response);
+            if(response == null){
+                throw new IllegalStateException("attemptLogin: Cannot connect to server / response is null");
+            }
+            JSONObject json;
+            try{
+                json = new JSONObject(response);
+            }catch (Exception e){
+                throw new IllegalStateException("attemptLogin: Malformed JSON");
+            }
             String status = (String)json.get("status");
 
-            if (status.equals("success")) {
+            if(status.equals("error")){
+                throw new IllegalStateException("attemptLogin: Server returned error");
+            }
+            if(status.equals("Login failed")){
+                return null;
+            }
+            else if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
-                String id = (String)data.get("_id");
-                String name = (String)data.get("name");
-                String email = (String)data.get("email");
-                String creditCardNumber = (String)data.get("creditCardNumber");
-                String creditCardCVV = (String)data.get("creditCardCVV");
-                String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
-                String creditCardExpiryYear = ((Integer)data.get("creditCardExpiryYear")).toString();
-                String creditCardPostCode = (String)data.get("creditCardPostCode");
+                String id = (String)data.get("_id"),
+                        name = (String)data.get("name"),
+                        email = (String)data.get("email"),
+                        creditCardNumber = (String)data.get("creditCardNumber"),
+                        creditCardCVV = (String)data.get("creditCardCVV"),
+                        creditCardExpiryMonth = (
+                                (Integer)data.get("creditCardExpiryMonth")).toString(),
+                        creditCardExpiryYear = (
+                                (Integer)data.get("creditCardExpiryYear")).toString(),
+                        creditCardPostCode = (String)data.get("creditCardPostCode");
 
-                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
+                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
 
                 List<Donation> donationList = new LinkedList<>();
 
@@ -55,24 +78,19 @@ public class DataManager {
                 for (int i = 0; i < donations.length(); i++) {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
-
-                    String fund = getFundName((String)jsonDonation.get("fund"));
-                    String date = (String)jsonDonation.get("date");
+                    String fund = (String)jsonDonation.get("fund"),
+                            date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
-
                     Donation donation = new Donation(fund, name, amount, date);
                     donationList.add(donation);
-
                 }
-
                 contributor.setDonations(donationList);
-
                 return contributor;
-
             }
-
             return null;
-
+        }
+        catch (IllegalStateException e){
+            throw new IllegalStateException(e.getMessage());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -85,22 +103,37 @@ public class DataManager {
      * @return the name of the fund if found, "Unknown fund" if not found, null if an error occurs
      */
     public String getFundName(String id) {
+        if(id == null){
+            throw new IllegalArgumentException("getFundName: id is null");
+        }
 
         try {
 
             Map<String, Object> map = new HashMap<>();
             map.put("id", id);
             String response = client.makeRequest("/findFundNameById", map);
-
-            JSONObject json = new JSONObject(response);
+            if(response == null){
+                throw new IllegalStateException("getFundName: Error in communicating with server / response is null");
+            }
+            JSONObject json;
+            try{
+                json = new JSONObject(response);
+            }catch (Exception e){
+                throw new IllegalStateException("getFundName: Malformed JSON");
+            }
             String status = (String)json.get("status");
-
+            if(status.equals("error")){
+                throw new IllegalStateException("getFundName: Server returned error");
+            }
             if (status.equals("success")) {
                 String name = (String)json.get("data");
                 return name;
             }
             else return "Unknown Fund";
 
+        }
+        catch (IllegalStateException e){
+            throw new IllegalStateException(e.getMessage());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -117,10 +150,19 @@ public class DataManager {
         try {
             Map<String, Object> map = new HashMap<>();
             String response = client.makeRequest("/allOrgs", map);
-
-            JSONObject json = new JSONObject(response);
+            if(response == null){
+                throw new IllegalStateException("getAllOrganizations: Error in communicating with server / response is null");
+            }
+            JSONObject json;
+            try{
+                json = new JSONObject(response);
+            }catch (Exception e){
+                throw new IllegalStateException("getAllOrganizations: Malformed JSON");
+            }
             String status = (String)json.get("status");
-
+            if(status.equals("error")){
+                throw new IllegalStateException("getAllOrganizations: Server returned error");
+            }
             if (status.equals("success")) {
 
                 List<Organization> organizations = new LinkedList<>();
@@ -168,6 +210,9 @@ public class DataManager {
             return null;
 
         }
+        catch(IllegalStateException e){
+            throw new IllegalStateException(e.getMessage());
+        }
         catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -180,7 +225,20 @@ public class DataManager {
      * @return true if successful, false otherwise
      */
     public boolean makeDonation(String contributorId, String fundId, String amount) {
-
+        if(contributorId == null){
+            throw new IllegalArgumentException("makeDonation: contributorId is null");
+        }
+        if(fundId == null){
+            throw new IllegalArgumentException("makeDonation: fundId is null");
+        }
+        if(amount == null){
+            throw new IllegalArgumentException("makeDonation: amount is null");
+        }
+        for(char c: amount.toCharArray()){
+            if(!Character.isDigit(c) && c != '.'){
+                throw new IllegalArgumentException("makeDonation: amount is non numeric");
+            }
+        }
         try {
 
             Map<String, Object> map = new HashMap<>();
@@ -188,17 +246,29 @@ public class DataManager {
             map.put("fund", fundId);
             map.put("amount", amount);
             String response = client.makeRequest("/makeDonation", map);
-            
-            JSONObject json = new JSONObject(response);
-            String status = (String)json.get("status");
 
+            if(response == null){
+                throw new IllegalStateException("makeDonation: Error in communicating with server / response is null");
+            }
+            JSONObject json;
+            try{
+                json = new JSONObject(response);
+            }catch (Exception e){
+                throw new IllegalStateException("makeDonation: Malformed JSON");
+            }
+            String status = (String)json.get("status");
+            if(status.equals("error")){
+                throw new IllegalStateException("makeDonation: Server returned error");
+            }
             return status.equals("success");
 
+        }
+        catch (IllegalStateException e){
+            throw new IllegalStateException(e.getMessage());
         }
         catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
     }
 }
