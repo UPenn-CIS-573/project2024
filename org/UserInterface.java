@@ -91,16 +91,22 @@ public class UserInterface {
 				System.out.println("Invalid input. Please enter a number");
 			}
 		}
-		
 
-		Fund fund = dataManager.createFund(org.getId(), name, description, target);
-//		Fund fund;
-//		try{
-//			fund = dataManager.createFund(org.getId(), name, description, target);
-//		}
-		org.getFunds().add(fund);
 
-		
+		try{
+			Fund fund = dataManager.createFund(org.getId(), name, description, target);
+			org.getFunds().add(fund);
+		}catch(IllegalArgumentException e){
+			if(e.getMessage().contains("origId")){
+				System.out.println("[Error] Error creating fund: origId is null");
+			}else if(e.getMessage().contains("name")){
+				System.out.println("[Error] Error creating fund: name is null");
+			}else if(e.getMessage().contains("description")){
+				System.out.println("[Error] Error creating fund: description is null");
+			}
+		}catch(IllegalStateException e){
+			System.out.println("Error has occured with the DataManager. Please try again.");
+		}
 	}
 
 	
@@ -142,6 +148,16 @@ public class UserInterface {
 		Organization org;
 		try{
 			org = ds.attemptLogin(login, password);
+			if (org == null) {
+				System.out.println("Login failed.");
+			}
+			else {
+
+				UserInterface ui = new UserInterface(ds, org);
+
+				ui.start();
+
+			}
 
 		}
 		catch (IllegalArgumentException e){
@@ -151,17 +167,6 @@ public class UserInterface {
 		catch(IllegalStateException e){
 			System.out.println("Error communicating with the server. Please try again.");
 			return;
-		}
-		
-		if (org == null) {
-			System.out.println("Login failed.");
-		}
-		else {
-
-			UserInterface ui = new UserInterface(ds, org);
-		
-			ui.start();
-		
 		}
 	}
 
