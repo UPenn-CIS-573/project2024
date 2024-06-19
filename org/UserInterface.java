@@ -7,20 +7,42 @@ import java.util.Scanner;
 public class UserInterface {
 	
 	
-	private DataManager dataManager;
-	private Organization org;
+	private static DataManager ds;
+	private static Organization org;
 	private Scanner in = new Scanner(System.in);
 	
-	public UserInterface(DataManager dataManager, Organization org) {
-		this.dataManager = dataManager;
-		this.org = org;
+	public UserInterface(DataManager dsArgument, Organization orgArgument) {
+		ds = dsArgument;
+		org = orgArgument;
 	}
-	
+
+    public void login() {
+        System.out.println("Enter your login:");
+        String login = in.nextLine().trim();
+
+        System.out.println("Enter your password:");
+        String password = in.nextLine().trim();
+        try{
+			org = ds.attemptLogin(login, password);
+
+		} catch(Exception e){
+			System.out.println("Error communicating with the server.");
+			return;
+		}
+		
+		if (org == null) {
+			System.out.println("Login failed.");
+		} else {
+            start();
+        }
+
+    }
+
 	public void start() {
                 
         while (true) {
             System.out.println("\n\n");
-            if (org.getFunds().size() > 0) {
+            if (!org.getFunds().isEmpty()) {
                 System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
             
                 int count = 1;
@@ -33,12 +55,19 @@ public class UserInterface {
                 System.out.println("Enter the fund number to see more information.");
             }
             System.out.println("Enter 0 to create a new fund");
+            System.out.println("Enter 'logout' to log out of this account");
             System.out.println("Or enter 'q' or 'quit' to exit");
             
             String choice = in.nextLine().trim();
             
             if (choice.equals("quit") || choice.equals("q")) {
                 System.out.println("Good bye!");
+                break;
+            }
+            else if (choice.equals("logout")) {
+                System.out.println("Logging out...");
+                this.org = null;
+                login();
                 break;
             }
             
@@ -118,7 +147,7 @@ public class UserInterface {
 		}
 		
 
-		Fund fund = dataManager.createFund(org.getId(), name, description, target);
+		Fund fund = ds.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
 
 		
@@ -182,31 +211,33 @@ public class UserInterface {
 	
 	public static void main(String[] args) {
 		
-		DataManager ds = new DataManager(new WebClient("localhost", 3001));
+		DataManager newDs = new DataManager(new WebClient("localhost", 3001));
 		
 		String login = args[0];
 		String password = args[1];
 		
-		Organization org;
+		Organization newOrg;
 		try{
-			org = ds.attemptLogin(login, password);
+			newOrg = newDs.attemptLogin(login, password);
 
 		} catch(Exception e){
+            e.printStackTrace();
 			System.out.println("Error communicating with the server.");
 			return;
 		}
 		
-		if (org == null) {
+		if (newOrg == null) {
 			System.out.println("Login failed.");
 		}
 		else {
 
-			UserInterface ui = new UserInterface(ds, org);
+			UserInterface ui = new UserInterface(newDs, newOrg);
 		
 			ui.start();
 		
 		}
 	}
+
 
 	
 
