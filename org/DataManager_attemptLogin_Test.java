@@ -38,7 +38,7 @@ public class DataManager_attemptLogin_Test {
 	}
 
     // test login fail
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testFailedLogin() {
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 
@@ -51,11 +51,10 @@ public class DataManager_attemptLogin_Test {
 		});
 
 		Organization org = dm.attemptLogin("login", "password", "public_key.pem");
-		assertNull(org);
 	}
 
 	// test login exception
-	@Test
+	@Test(expected=RuntimeException.class)
 	public void testLoginException() {
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 
@@ -67,6 +66,5 @@ public class DataManager_attemptLogin_Test {
 		});
 
 		Organization org = dm.attemptLogin("login", "password", "public_key.pem");
-		assertNull(org);
 	}
 }

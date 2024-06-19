@@ -189,9 +189,11 @@ public class DataManager {
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("[Invalid Input] Contributor ID cannot be empty.");
 		}
+
 		if (client == null) {
 			throw new IllegalStateException("[Invalid State] WebClient cannot be null.");
 		}
+
 		try {
 			if (contributorCache.containsKey(id)) {
 				return contributorCache.get(id);
