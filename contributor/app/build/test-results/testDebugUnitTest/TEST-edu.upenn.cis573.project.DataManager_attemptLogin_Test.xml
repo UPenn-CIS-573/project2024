@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="edu.upenn.cis573.project.DataManager_attemptLogin_Test" tests="3" skipped="0" failures="0" errors="0" timestamp="2024-06-11T15:04:29" hostname="hnt-02009.apn.wlan.private.upenn.edu" time="0.003">
+<testsuite name="edu.upenn.cis573.project.DataManager_attemptLogin_Test" tests="3" skipped="0" failures="0" errors="0" timestamp="2024-06-19T22:53:05" hostname="Aarons-MacBook-Air-5.local" time="0.003">
   <properties/>
   <testcase name="testAttemptLoginException" classname="edu.upenn.cis573.project.DataManager_attemptLogin_Test" time="0.002"/>
-  <testcase name="testAttemptLoginSuccess" classname="edu.upenn.cis573.project.DataManager_attemptLogin_Test" time="0.001"/>
-  <testcase name="testAttemptLoginFailure" classname="edu.upenn.cis573.project.DataManager_attemptLogin_Test" time="0.0"/>
+  <testcase name="testAttemptLoginSuccess" classname="edu.upenn.cis573.project.DataManager_attemptLogin_Test" time="0.0"/>
+  <testcase name="testAttemptLoginFailure" classname="edu.upenn.cis573.project.DataManager_attemptLogin_Test" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[java.lang.RuntimeException: Simulated exception
-	at edu.upenn.cis573.project.DataManager_attemptLogin_Test$3.makeRequest(DataManager_attemptLogin_Test.java:49)
-	at edu.upenn.cis573.project.DataManager.attemptLogin(DataManager.java:33)
-	at edu.upenn.cis573.project.DataManager_attemptLogin_Test.testAttemptLoginException(DataManager_attemptLogin_Test.java:85)
+	at edu.upenn.cis573.project.DataManager_attemptLogin_Test$4.makeRequest(DataManager_attemptLogin_Test.java:57)
+	at edu.upenn.cis573.project.DataManager.attemptLogin(DataManager.java:34)
+	at edu.upenn.cis573.project.DataManager_attemptLogin_Test.testAttemptLoginException(DataManager_attemptLogin_Test.java:93)
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)

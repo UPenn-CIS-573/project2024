@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/bing/Desktop/cis573/project2024/project2024/contributor/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-cs/values-cs.xml",
+            "outputFile": "/Users/bing/Desktop/cis573/project2024/contributor/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-cs/values-cs.xml",
             "map": [
                 {
                     "source": "/Users/bing/.gradle/caches/transforms-3/6d8302eb5cffcd62b205853392409c75/transformed/material-1.3.0/res/values-cs/values-cs.xml",
