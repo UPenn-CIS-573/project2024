@@ -94,6 +94,10 @@ public class UserInterface {
 		
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
+//		Fund fund;
+//		try{
+//			fund = dataManager.createFund(org.getId(), name, description, target);
+//		}
 		org.getFunds().add(fund);
 
 		
@@ -139,8 +143,13 @@ public class UserInterface {
 		try{
 			org = ds.attemptLogin(login, password);
 
-		} catch(IllegalStateException e){
-			System.out.println("Error communicating with the server.");
+		}
+		catch (IllegalArgumentException e){
+			System.out.println(e.getMessage());
+			System.out.println("Please try to log in again with non null login and password");
+		}
+		catch(IllegalStateException e){
+			System.out.println("Error communicating with the server. Please try again.");
 			return;
 		}
 		
