@@ -123,6 +123,7 @@ public class DataManager {
 
 					JSONArray donations = (JSONArray)fund.get("donations");
 					List<Donation> donationList = new LinkedList<>();
+					Map<String, AggregateDonation> aggregateDonations = new HashMap<>();
 					Iterator it2 = donations.iterator();
 					while(it2.hasNext()){
 						JSONObject donation = (JSONObject) it2.next();
@@ -141,9 +142,15 @@ public class DataManager {
 						String month = MonthLiteral(date_parts[1]);
 						date = month + " " + date_parts[2] + ", " + date_parts[0];
 						donationList.add(new Donation(fundId, contributorName, amount, date));
+						if (aggregateDonations.containsKey(contributorId)) {
+							aggregateDonations.get(contributorId).increaseDonation(amount);
+						} else {
+							aggregateDonations.put(contributorId, new AggregateDonation(contributorId, contributorName, amount));
+						}
 					}
 
 					newFund.setDonations(donationList);
+					newFund.setAggregateDonations(aggregateDonations);
 					org.addFund(newFund);
 				}
 
@@ -227,6 +234,7 @@ public class DataManager {
 			throw e;
 		}
 		catch (Exception e) {
+			System.out.println("Error in getContributorName: " + e.getMessage());
 			return null;
 		}
 	}
