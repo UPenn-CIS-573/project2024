@@ -189,9 +189,11 @@ public class DataManager {
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("[Invalid Input] Contributor ID cannot be empty.");
 		}
+
 		if (client == null) {
 			throw new IllegalStateException("[Invalid State] WebClient cannot be null.");
 		}
+
 		try {
 			if (contributorCache.containsKey(id)) {
 				return contributorCache.get(id);
@@ -349,9 +351,33 @@ public class DataManager {
 			throw e;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Error in createFund: " + e.getMessage());
 			return null;
 		}	
+	}
+
+	// delete fund
+	public boolean deleteFund(String fundId) {
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", fundId);
+			String response = client.makeRequest("/deleteFund", map);
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String)json.get("status");
+			if (status.equals("success")) {
+				return true;
+			}
+			else
+			{
+				System.out.println("Error Status: " + status);
+				return false;
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Error in deleteFund: " + e.getMessage());
+			return false;
+		}
 	}
 
 
