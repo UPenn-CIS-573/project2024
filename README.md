@@ -46,6 +46,15 @@ Format the date string in `UserInterface` and set the donation.
 
 # Phase 2
 
+## 2.2 (Ruxi Xu)
+
+Added `DataManagerRobustnessTests.java` in Organization App. All thest are passed.
+UI is updated to display meaningful error message.
+
+## 2.8 (Ruxi Xu)
+
+Added logout function in UI classes; login again feature is also added to let user log back in after logout.
+
 ## 2.10 Encryptation (Boshu Lei)
 
 Execution
