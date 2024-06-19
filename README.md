@@ -50,3 +50,9 @@ Format the date string in `UserInterface` and set the donation.
 I create a new class `AggregateDonation` which contains the aggregated donation information for each fund.
 It is created during the creation of that fund in the memory.
 
+
+
+## 2.7 Organization App delete fund
+I append a while loop in the end of display fund function to ask the user whether to delete this fund. 
+I add a new function in the DataManager class, and also delete the fund info in the memory object.
+I add unit test and mock objects to test the new function.
