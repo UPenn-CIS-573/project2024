@@ -15,7 +15,7 @@ public class DataManager_attemptLogin_Test {
     Contributor contributor;
     @Before
     public void setUp() {
-        dmValid = new DataManager(new WebClient(null, 0) {
+        dmValid = new DataManager(new WebClient("1", 3000) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
                 return "{ \"status\": \"success\", " +
@@ -35,15 +35,23 @@ public class DataManager_attemptLogin_Test {
                         "} " +
                         "}";
             }
-        });
+        }) {
+            @Override
+            public String getFundName(String id) {
+                if (id.equals("fund1")) {
+                    return "f1";
+                }
+                return null;
+            }
+        };
 
-        dmFailure = new DataManager(new WebClient(null, 0) {
+        dmFailure = new DataManager(new WebClient("1", 3000) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
                 return "{ \"status\": \"failure\" }";
             }
         });
-        dmException = new DataManager(new WebClient(null, 0) {
+        dmException = new DataManager(new WebClient("1", 3000) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
                 throw new RuntimeException("Simulated exception");
@@ -68,7 +76,7 @@ public class DataManager_attemptLogin_Test {
         assertNotNull(donations);
         assertEquals(1, donations.size());
         Donation donation = donations.get(0);
-        assertEquals("fund1", donation.getFundName());
+        assertEquals("f1", donation.getFundName());
         assertEquals("John Smith", donation.getContributorName());
         assertEquals(100, donation.getAmount());
         assertEquals("2023-06-01", donation.getDate());

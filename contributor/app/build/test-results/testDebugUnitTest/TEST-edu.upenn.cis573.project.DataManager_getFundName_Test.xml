@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="edu.upenn.cis573.project.DataManager_getFundName_Test" tests="3" skipped="0" failures="0" errors="0" timestamp="2024-06-11T15:04:29" hostname="hnt-02009.apn.wlan.private.upenn.edu" time="0.002">
+<testsuite name="edu.upenn.cis573.project.DataManager_getFundName_Test" tests="3" skipped="0" failures="0" errors="0" timestamp="2024-06-19T22:53:05" hostname="Aarons-MacBook-Air-5.local" time="0.001">
   <properties/>
-  <testcase name="testGetFundNameException" classname="edu.upenn.cis573.project.DataManager_getFundName_Test" time="0.002"/>
+  <testcase name="testGetFundNameException" classname="edu.upenn.cis573.project.DataManager_getFundName_Test" time="0.001"/>
   <testcase name="testGetFundNameUnknownFund" classname="edu.upenn.cis573.project.DataManager_getFundName_Test" time="0.0"/>
   <testcase name="testSuccess" classname="edu.upenn.cis573.project.DataManager_getFundName_Test" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
