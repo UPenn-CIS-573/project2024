@@ -13,6 +13,7 @@ import org.json.JSONArray;
 public class DataManager {
 
     private WebClient client;
+    private HashMap<String, String> cacheFundName = new HashMap<>();
 
     public DataManager(WebClient client) {
         if(client == null){
@@ -68,18 +69,18 @@ public class DataManager {
                         creditCardExpiryYear = (
                                 (Integer)data.get("creditCardExpiryYear")).toString(),
                         creditCardPostCode = (String)data.get("creditCardPostCode");
-
                 Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
-
                 List<Donation> donationList = new LinkedList<>();
-
                 JSONArray donations = (JSONArray)data.get("donations");
-
                 for (int i = 0; i < donations.length(); i++) {
-
                     JSONObject jsonDonation = donations.getJSONObject(i);
-                    String fund = (String)jsonDonation.get("fund"),
+                    String fId = (String)jsonDonation.get("fund"),
+                            fund = cacheFundName.getOrDefault(fId, null),
                             date = (String)jsonDonation.get("date");
+                    if (fund == null) {
+                        fund = getFundName(fId);
+                        cacheFundName.put(fId, fund);
+                    }
                     long amount = (Integer)jsonDonation.get("amount");
                     Donation donation = new Donation(fund, name, amount, date);
                     donationList.add(donation);
@@ -106,9 +107,10 @@ public class DataManager {
         if(id == null){
             throw new IllegalArgumentException("getFundName: id is null");
         }
-
+        if (cacheFundName.containsKey(id)) {
+            return cacheFundName.get(id);
+        }
         try {
-
             Map<String, Object> map = new HashMap<>();
             map.put("id", id);
             String response = client.makeRequest("/findFundNameById", map);
@@ -126,11 +128,13 @@ public class DataManager {
                 throw new IllegalStateException("getFundName: Server returned error");
             }
             if (status.equals("success")) {
-                String name = (String)json.get("data");
+                String name = (String)json.get("data").toString();
+                cacheFundName.put(id, name);
                 return name;
             }
-            else return "Unknown Fund";
-
+            else {
+                return "Unknown Fund";
+            }
         }
         catch (IllegalStateException e){
             throw new IllegalStateException(e.getMessage());
