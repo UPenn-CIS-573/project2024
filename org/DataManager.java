@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class DataManager {
 
@@ -171,8 +172,31 @@ public class DataManager {
 		catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
+
+	public String deleteFund(String fundId) {
+		if (fundId == null || fundId.isEmpty()) {
+			return "Invalid Fund ID.";
+		}
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", fundId);
+			String response = client.makeRequest("/deleteFund", map);
+			if (response == null || response.isEmpty()) {
+				return "Error: Empty response from server.";
+			}
+
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String) json.get("status");
+
+			return status.equals("success") ? "success" : "error";
+		} catch (Exception e) {
+            e.printStackTrace();
+			return "Error: exception occurred.";
+        }
+    }
 
 	public String parseDateFormat(String date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
