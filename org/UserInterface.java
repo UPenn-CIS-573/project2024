@@ -3,8 +3,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class UserInterface {
-
-
 	private DataManager dataManager;
 	private Organization org;
 	private Scanner in = new Scanner(System.in);
@@ -61,15 +59,27 @@ public class UserInterface {
 			}
 
 			if (option == 0) {
-				createFund();
-			}
-			else {
+				while (true) {
+					try {
+						createFund();
+						break;
+					} catch (IllegalArgumentException | IllegalStateException e) {
+						System.out.println(e.getMessage());
+						System.out.println("Would you like to retry? (y/n)");
+						String retry = in.nextLine().trim().toLowerCase();
+						if (!retry.equals("y")) {
+							System.out.println("Back to the listing of funds");
+							break;
+						}
+					}
+				}
+			} else {
 				displayFund(option);
 			}
 		}
 	}
 
-	public void createFund() {
+	public void createFund() throws IllegalStateException{
 		String name = "";
 		String description = "";
 		long target = -1;
@@ -104,12 +114,16 @@ public class UserInterface {
 			}
 		}
 
-		Fund fund = dataManager.createFund(org.getId(), name, description, target);
-		if (fund != null) {
-			org.getFunds().add(fund);
-			System.out.println("Fund created successfully.");
-		} else {
-			System.out.println("Failed to create fund.");
+		try {
+			Fund fund = dataManager.createFund(org.getId(), name, description, target);
+			if (fund != null) {
+				org.getFunds().add(fund);
+				System.out.println("Fund created successfully.");
+			} else {
+				System.out.println("Failed to create fund.");
+			}
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			throw e;
 		}
 	}
 
@@ -180,27 +194,33 @@ public class UserInterface {
 
 
 	public static void main(String[] args) {
-
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
 
 		String login = args[0];
 		String password = args[1];
 
-		try {
-			Organization org = ds.attemptLogin(login, password);
+		while (true) {
+			try {
+				Organization org = ds.attemptLogin(login, password);
 
-			if (org == null) {
-				System.out.println("Login failed.");
-			} else {
-
-				UserInterface ui = new UserInterface(ds, org);
-
-				ui.start();
-
+				if (org == null) {
+					System.out.println("Login failed.");
+					return;
+				} else {
+					UserInterface ui = new UserInterface(ds, org);
+					ui.start();
+					return;
+				}
+			} catch (IllegalArgumentException | IllegalStateException e) {
+				System.out.println(e.getMessage());
+				System.out.println("Would you like to retry? (y/n)");
+				Scanner in = new Scanner(System.in);
+				String retry = in.nextLine().trim().toLowerCase();
+				if (!retry.equals("y")) {
+					System.out.println("Program terminated.");
+					break;
+				}
 			}
-		} catch (IllegalStateException e) {
-			System.out.println("Error communicating with the server: " + e.getMessage());
 		}
 	}
-
 }
