@@ -1,6 +1,6 @@
 Project Phase 2 Write-up
-Q1.
 
+Q1.
 The additional tasks that we would like graded for this phase are 2.4, 2.5, 2.6, 2.7
 
 Q2.
