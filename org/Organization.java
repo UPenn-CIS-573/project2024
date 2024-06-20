@@ -35,6 +35,9 @@ public class Organization {
 	public void addFund(Fund fund) {
 		funds.add(fund);
 	}
-	
+
+	public void removeFund(String fundId) {
+		funds.removeIf(fund -> fund.getId().equals(fundId));
+	}
 
 }

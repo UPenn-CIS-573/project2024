@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class UserInterface {
@@ -15,7 +16,8 @@ public class UserInterface {
 
 		while (true) {
 			System.out.println("\n\n");
-			if (org.getFunds().size() > 0) {
+			int fundCount = org.getFunds().size();
+			if (fundCount > 0) {
 				System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
 
 				int count = 1;
@@ -26,6 +28,8 @@ public class UserInterface {
 					count++;
 				}
 				System.out.println("Enter the fund number to see more information.");
+			} else {
+				System.out.println("No fund available.");
 			}
 			System.out.println("Enter 0 to create a new fund");
 			int option;
@@ -134,20 +138,59 @@ public class UserInterface {
 		System.out.println("Description: " + fund.getDescription());
 		System.out.println("Target: $" + fund.getTarget());
 
-		List<Donation> donations = fund.getDonations();
-		long totalDonations = 0;
-		System.out.println("Number of donations: " + donations.size());
-		for (Donation donation : donations) {
-			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
-			totalDonations += donation.getAmount();
-		}
+		System.out.println("Choose an option (Enter a number):");
+		System.out.println("1. View individual donations");
+		System.out.println("2. View aggregated donations by contributor");
+		System.out.println("3. Delete this fund");
 
-		int percent = (int)(totalDonations * 100 / fund.getTarget());
-		System.out.println("Total donation amount: $" + totalDonations + " (" + percent + "% of target)");
+		int choice = in.nextInt();
+		in.nextLine();
+
+		switch (choice) {
+			case 1:
+				List<Donation> donations = fund.getDonations();
+				long totalDonations = 0;
+				System.out.println("Number of donations: " + donations.size());
+				for (Donation donation : donations) {
+					System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+					totalDonations += donation.getAmount();
+				}
+				int percent = (int) (totalDonations * 100 / fund.getTarget());
+				System.out.println("Total donation amount: $" + totalDonations + " (" + percent + "% of target)");
+				break;
+
+			case 2:
+				List<Map.Entry<String, Fund.AggregateInfo>> aggregateDonations = fund.getAggregatedDonations();
+				for (Map.Entry<String, Fund.AggregateInfo> entry : aggregateDonations) {
+					String contributor = entry.getKey();
+					Fund.AggregateInfo info = entry.getValue();
+					System.out.println("* " + contributor + ", " + info.donationCount + " donations, $" + info.totalAmount + " total");
+				}
+				break;
+
+			case 3:
+				System.out.println("Are you sure you want to delete this fund? (yes/no)");
+				String confirmation = in.nextLine().trim();
+				if (confirmation.equalsIgnoreCase("yes")) {
+					try {
+						dataManager.deleteFund(fund.getId());
+						org.removeFund(fund.getId());
+						System.out.println("Fund deleted successfully.");
+					} catch (IllegalStateException e) {
+						System.out.println("Failed to delete the fund: " + e.getMessage());
+					}
+				}
+				break;
+
+			default:
+				System.out.println("Invalid choice. Please enter a valid option.");
+				break;
+		}
 
 		System.out.println("Press the Enter key to go back to the listing of funds");
 		in.nextLine();
 	}
+
 
 
 	public static void main(String[] args) {

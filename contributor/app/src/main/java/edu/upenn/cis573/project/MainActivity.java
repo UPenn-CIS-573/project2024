@@ -9,6 +9,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     protected static Contributor contributor;
@@ -29,21 +31,20 @@ public class MainActivity extends AppCompatActivity {
         EditText passwordField = findViewById(R.id.passwordField);
         String password = passwordField.getText().toString();
 
+        try {
+            contributor = dataManager.attemptLogin(login, password);
 
-        contributor = dataManager.attemptLogin(login, password);
+            if (contributor == null) {
 
-        if (contributor == null) {
+                Toast.makeText(this, "Login failed!", Toast.LENGTH_LONG).show();
 
-            Toast.makeText(this, "Login failed!", Toast.LENGTH_LONG).show();
-
-
-        } else {
-
-            Intent i = new Intent(this, MenuActivity.class);
-
-            startActivity(i);
+            } else{
+                Intent i = new Intent(this, MenuActivity.class);
+                startActivity(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "An unexpected error occurred. Please try again later.", Toast.LENGTH_LONG).show();
         }
-
-
     }
 }
