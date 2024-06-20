@@ -1,9 +1,7 @@
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -23,23 +21,36 @@ public class DataManager {
 	 * @return an Organization object if successful; null if unsuccessful
 	 */
 	public Organization attemptLogin(String login, String password) {
+		if (login == null || password == null) {
+			throw new IllegalArgumentException("login and password cannot be null");
+		}
+		if (login.isEmpty() || password.isEmpty()) {
+			return null;
+		}
 
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-
+			if (response == null) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 
+			// create cache
+			final Map<String, String> contributorNameCache = new HashMap<>();
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
 				String name = (String)data.get("name");
-				String description = (String)data.get("descrption");
+				String description = (String)data.get("description");
 				Organization org = new Organization(fundId, name, description);
 
 				JSONArray funds = (JSONArray)data.get("funds");
@@ -59,9 +70,23 @@ public class DataManager {
 					while(it2.hasNext()){
 						JSONObject donation = (JSONObject) it2.next();
 						String contributorId = (String)donation.get("contributor");
-						String contributorName = this.getContributorName(contributorId);
+
+						String contributorName = null;
+						if (contributorId != null) {
+							// query cache
+							contributorName = contributorNameCache.get(contributorId);
+							// cache miss
+							if (contributorName == null) {
+								contributorName = this.getContributorName(contributorId);
+								// update cache
+								if (contributorName != null) {
+									contributorNameCache.put(contributorId, contributorName);
+								}
+							}
+						}
+
 						long amount = (Long)donation.get("amount");
-						String date = (String)donation.get("date");
+						String date = parseDateFormat((String)donation.get("date"));
 						donationList.add(new Donation(fundId, contributorName, amount, date));
 					}
 
@@ -76,8 +101,7 @@ public class DataManager {
 			else return null;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}
 	}
 
@@ -87,27 +111,31 @@ public class DataManager {
 	 * @return the name of the contributor on success; null if no contributor is found
 	 */
 	public String getContributorName(String id) {
+		if (id == null) {
+			throw new IllegalArgumentException("id cannot be null");
+		}
+		if (id.isEmpty()) {
+			return null;
+		}
 
 		try {
-
 			Map<String, Object> map = new HashMap<>();
-			map.put("_id", id);
-			String response = client.makeRequest("/findContributrNameById", map);
+			map.put("id", id);
+			String response = client.makeRequest("/findContributorNameById", map);
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
-
-			if (status.equals("success")) {
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}else if (status.equals("success")) {
 				String name = (String)json.get("data");
 				return name;
 			}
 			else return null;
-
-
 		}
 		catch (Exception e) {
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}	
 	}
 
@@ -116,9 +144,16 @@ public class DataManager {
 	 * @return a new Fund object if successful; null if unsuccessful
 	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
-
+		if (orgId == null || name == null || description == null) {
+			throw new IllegalArgumentException("orgId, name, or description cannot be null");
+		}
+		if (orgId.isEmpty() || name.isEmpty() || description.isEmpty()) {
+			return null;
+		}
+		if (target < 0) {
+			return null;
+		}
 		try {
-
 			Map<String, Object> map = new HashMap<>();
 			map.put("orgId", orgId);
 			map.put("name", name);
@@ -129,7 +164,9 @@ public class DataManager {
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
-
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 			if (status.equals("success")) {
 				JSONObject fund = (JSONObject)json.get("data");
 				String fundId = (String)fund.get("_id");
@@ -139,10 +176,21 @@ public class DataManager {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}	
 	}
 
+	public String parseDateFormat(String date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		Date d = null;
+		try {
+			d = sdf.parse(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
+		return sdf.format(d);
+	}
 
 }
