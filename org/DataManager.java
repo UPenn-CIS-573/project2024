@@ -22,7 +22,7 @@ public class DataManager {
 	 */
 	public Organization attemptLogin(String login, String password) {
 		if (login == null || password == null) {
-			return null;
+			throw new IllegalArgumentException("login and password cannot be null");
 		}
 		if (login.isEmpty() || password.isEmpty()) {
 			return null;
@@ -33,10 +33,15 @@ public class DataManager {
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-
+			if (response == null) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 
 			// create cache
 			final Map<String, String> contributorNameCache = new HashMap<>();
@@ -106,12 +111,14 @@ public class DataManager {
 	 * @return the name of the contributor on success; null if no contributor is found
 	 */
 	public String getContributorName(String id) {
-		if (id == null || id.isEmpty()) {
+		if (id == null) {
+			throw new IllegalArgumentException("id cannot be null");
+		}
+		if (id.isEmpty()) {
 			return null;
 		}
 
 		try {
-
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
@@ -119,17 +126,16 @@ public class DataManager {
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
-
-			if (status.equals("success")) {
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}else if (status.equals("success")) {
 				String name = (String)json.get("data");
 				return name;
 			}
 			else return null;
-
-
 		}
 		catch (Exception e) {
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}	
 	}
 
@@ -139,7 +145,7 @@ public class DataManager {
 	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
 		if (orgId == null || name == null || description == null) {
-			return null;
+			throw new IllegalArgumentException("orgId, name, or description cannot be null");
 		}
 		if (orgId.isEmpty() || name.isEmpty() || description.isEmpty()) {
 			return null;
@@ -148,7 +154,6 @@ public class DataManager {
 			return null;
 		}
 		try {
-
 			Map<String, Object> map = new HashMap<>();
 			map.put("orgId", orgId);
 			map.put("name", name);
@@ -159,7 +164,9 @@ public class DataManager {
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
-
+			if (status.equals("error")) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
 			if (status.equals("success")) {
 				JSONObject fund = (JSONObject)json.get("data");
 				String fundId = (String)fund.get("_id");
@@ -169,8 +176,7 @@ public class DataManager {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Error in communicating with server", e);
 		}	
 	}
 
