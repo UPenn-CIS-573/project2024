@@ -196,7 +196,6 @@ public class DataManager {
 
 			return status.equals("success") ? "success" : "error";
 		} catch (Exception e) {
-            e.printStackTrace();
 			return "Error: exception occurred.";
         }
     }
