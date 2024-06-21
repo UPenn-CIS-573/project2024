@@ -32,7 +32,7 @@ public class DataManager_getContributorName_Test {
         assertNull(contributorName);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testExceptionInGetContributorName() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
@@ -42,10 +42,9 @@ public class DataManager_getContributorName_Test {
         });
 
         String contributorName = dm.getContributorName("123456");
-        assertNull(contributorName);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNullInputParam() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override

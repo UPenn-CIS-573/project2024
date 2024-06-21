@@ -163,6 +163,10 @@ public class DataManager {
             JSONObject json = new JSONObject(response);
             String status = (String)json.getString("status");
 
+            if (status.equals("error")) {
+                throw new IllegalStateException("Error in response: " + json.getString("error"));
+            }
+
             if (status.equals("success")) {
 
                 List<Organization> organizations = new LinkedList<>();
@@ -205,9 +209,8 @@ public class DataManager {
 
                 return organizations;
 
-            } else {
-                throw new IllegalStateException("Error in response: " + json.getString("error"));
             }
+            return null;
 
         }
         catch (Exception e) {

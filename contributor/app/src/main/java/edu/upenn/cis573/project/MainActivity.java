@@ -36,14 +36,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (contributor == null) {
 
-                Toast.makeText(this, "Login failed!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Login failed! Please Try Again !", Toast.LENGTH_LONG).show();
 
             } else{
                 Intent i = new Intent(this, MenuActivity.class);
                 startActivity(i);
             }
         } catch (Exception e) {
-            Toast.makeText(this, "An unexpected error occurred. Please try again later.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

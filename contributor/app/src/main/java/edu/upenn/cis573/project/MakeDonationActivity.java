@@ -35,7 +35,7 @@ public class MakeDonationActivity extends AppCompatActivity {
             orgs = dataManager.getAllOrganizations();
             selectedOrg = orgs.get(0);
         }catch (Exception e) {
-            Toast.makeText(this, "Sorry, something went wrong! Please Try again", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -185,7 +185,7 @@ public class MakeDonationActivity extends AppCompatActivity {
                 Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Sorry, something went wrong! Please Try again", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             return;
         }
     }

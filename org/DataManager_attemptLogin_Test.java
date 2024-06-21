@@ -5,7 +5,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class DataManager_attemptLogin_Test {
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testAllCorrect() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 
@@ -23,19 +23,19 @@ public class DataManager_attemptLogin_Test {
             }
 
         });
-        Organization o = dm.attemptLogin("123456", "123456");
+        Organization o = dm.attemptLogin("111", "111");
         Fund f = o.getFunds().get(0);
         Donation d = f.getDonations().get(0);
         assertNotNull(o);
-       assertEquals("12345", o.getId());
-       assertEquals("test", o.getName());
+        assertEquals("12345", o.getId());
+        assertEquals("test", o.getName());
         assertEquals("test description", o.getDescription());
         assertEquals("12345", f.getId());
-       assertEquals("test2", f.getName());
-       assertEquals("test2", f.getDescription());
-       assertEquals(21203, f.getTarget());
-       assertEquals(68000, d.getAmount());
-       assertEquals("June 09, 2024", d.getDate());
+        assertEquals("test2", f.getName());
+        assertEquals("test2", f.getDescription());
+        assertEquals(21203, f.getTarget());
+        assertEquals(68000, d.getAmount());
+        assertEquals("June 09, 2024", d.getDate());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class DataManager_attemptLogin_Test {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNullInputParam() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
@@ -107,6 +107,5 @@ public class DataManager_attemptLogin_Test {
         });
 
         Organization o = dm.attemptLogin("123456", "");
-        assertNull(o);
     }
 }

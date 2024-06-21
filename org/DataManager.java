@@ -189,9 +189,6 @@ public class DataManager {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", fundId);
 			String response = client.makeRequest("/deleteFund", map);
-			if (response == null || response.isEmpty()) {
-				return "Error: Empty response from server.";
-			}
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
