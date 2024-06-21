@@ -49,6 +49,10 @@ public class DataManager {
             // create cache
             final Map<String, String> fundNameCache = new HashMap<>();
 
+            if(status.equals("error")) {
+                throw new IllegalStateException("Error in response: " + json.getString("error"));
+            }
+
             if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
                 String id = (String)data.get("_id");
@@ -93,11 +97,8 @@ public class DataManager {
                 contributor.setDonations(donationList);
 
                 return contributor;
-
-            } else {
-                throw new IllegalStateException("Error in response: " + json.getString("error"));
             }
-
+            return null;
         }
         catch (Exception e) {
            throw new IllegalStateException("Exception during login", e);
@@ -127,11 +128,15 @@ public class DataManager {
             }
 
             JSONObject json = new JSONObject(response);
-            String status = (String) json.getString("status");
-
-            if (!status.equals("success")) {
+            String status = (String)json.get("status");
+            if(status.equals("error")) {
                 throw new IllegalStateException("Error in response: " + json.getString("error"));
-            } return json.getString("fundName");
+            }
+            if (status.equals("success")) {
+                String name = (String)json.get("data");
+                return name;
+            }
+            else return "Unknown Fund";
         } catch (Exception e) {
             throw new IllegalStateException("Exception during getFundName", e);
         }

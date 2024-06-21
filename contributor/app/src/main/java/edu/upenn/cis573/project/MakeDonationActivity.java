@@ -30,9 +30,15 @@ public class MakeDonationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make_donation);
+        final List<Organization> orgs;
+        try {
+            orgs = dataManager.getAllOrganizations();
+            selectedOrg = orgs.get(0);
+        }catch (Exception e) {
+            Toast.makeText(this, "Sorry, something went wrong! Please Try again", Toast.LENGTH_LONG).show();
+            return;
+        }
 
-        final List<Organization> orgs = dataManager.getAllOrganizations();
-        selectedOrg = orgs.get(0);
         if (selectedOrg.getFunds().isEmpty() == false) {
             selectedFund = selectedOrg.getFunds().get(0);
         }
@@ -142,40 +148,23 @@ public class MakeDonationActivity extends AppCompatActivity {
         Contributor contributor = MainActivity.contributor;
         String contributorId = contributor.getId();
 
+        Log.v("makeDonation", orgId + " " + fundId + " " + amount + " " + contributorId);
+
         try {
-            boolean success = dataManager.makeDonation(MainActivity.contributor.getId(), fundId, amount);
+            boolean success = dataManager.makeDonation(contributorId, fundId, amount);
 
             if (success) {
                 Toast.makeText(this, "Thank you for your donation!", Toast.LENGTH_LONG).show();
-                // Add your logic for handling success
-            } else {
-                Toast.makeText(this, "Sorry, something went wrong during donation!", Toast.LENGTH_LONG).show();
-                // Add your logic for handling failure
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
-            // Add your logic for retrying operation or notifying the user
-        }
+                contributor.getDonations().add(new Donation(selectedFund.getName(), contributor.getName(), Long.parseLong(amount), new Date().toString()));
 
-        if (fundId.equals("0")) {
-            Toast.makeText(this, "Sorry, this Organization does not have any Funds.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        Log.v("makeDonation", orgId + " " + fundId + " " + amount + " " + contributorId);
-
-        boolean success = dataManager.makeDonation(contributorId, fundId, amount);
-
-        if (success) {
-            Toast.makeText(this, "Thank you for your donation!", Toast.LENGTH_LONG).show();
-            contributor.getDonations().add(new Donation(selectedFund.getName(), contributor.getName(), Long.parseLong(amount), new Date().toString()));
-
-            Executor executor = Executors.newSingleThreadExecutor();
-            executor.execute( () -> {
-                        try { Thread.sleep(3000); } catch (Exception e) { }
-                        finish();
-                    });
+                Executor executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (Exception e) {
+                    }
+                    finish();
+                });
             /*
             // this approach is no longer supported
             new AsyncTask<String, String, String>() {
@@ -192,10 +181,12 @@ public class MakeDonationActivity extends AppCompatActivity {
             }.execute();
             */
 
-        }
-        else {
-            Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Sorry, something went wrong! Please Try again", Toast.LENGTH_LONG).show();
+            return;
         }
     }
-
 }

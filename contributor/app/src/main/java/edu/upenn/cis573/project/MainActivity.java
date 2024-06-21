@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(this, "An unexpected error occurred. Please try again later.", Toast.LENGTH_LONG).show();
         }
     }
