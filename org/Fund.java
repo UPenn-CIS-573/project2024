@@ -7,7 +7,7 @@ public class Fund {
 	private String description;
 	private long target;
 	private List<Donation> donations;
-	private static List<Map.Entry<String, AggregateInfo>> AggregationList;
+	private List<Map.Entry<String, AggregateInfo>> AggregationList;
 	
 	public Fund(String id, String name, String description, long target) {
 		this.id = id;
