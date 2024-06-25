@@ -11,6 +11,7 @@ import org.json.simple.parser.ParseException;
 public class DataManager {
 
 	private final WebClient client;
+	private final Map<String, String> contributorNameCache = new ConcurrentHashMap<>();
 
 	public DataManager(WebClient client) {
 		this.client = client;
@@ -44,9 +45,6 @@ public class DataManager {
 				throw new IllegalStateException("Error in communicating with server");
 			}
 
-			// create cache
-			final Map<String, String> contributorNameCache = new HashMap<>();
-
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
@@ -72,19 +70,7 @@ public class DataManager {
 						JSONObject donation = (JSONObject) it2.next();
 						String contributorId = (String)donation.get("contributor");
 
-						String contributorName = null;
-						if (contributorId != null) {
-							// query cache
-							contributorName = contributorNameCache.get(contributorId);
-							// cache miss
-							if (contributorName == null) {
-								contributorName = this.getContributorName(contributorId);
-								// update cache
-								if (contributorName != null) {
-									contributorNameCache.put(contributorId, contributorName);
-								}
-							}
-						}
+						String contributorName = this.getContributorName(contributorId);
 
 						long amount = (Long)donation.get("amount");
 						String date = parseDateFormat((String)donation.get("date"));
@@ -120,6 +106,13 @@ public class DataManager {
 		}
 
 		try {
+			// query cache
+			String cachedName = contributorNameCache.get(id);
+			if (cachedName != null) {
+				return cachedName;
+			}
+
+			// cache miss
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
@@ -131,6 +124,10 @@ public class DataManager {
 				throw new IllegalStateException("Error in communicating with server");
 			}else if (status.equals("success")) {
 				String name = (String)json.get("data");
+
+				// update cache
+				contributorNameCache.put(id, name);
+
 				return name;
 			}
 			else return null;

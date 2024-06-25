@@ -7,12 +7,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class DataManager {
 
     private WebClient client;
+    private final Map<String, String> fundNameCache = new ConcurrentHashMap<>();
 
     public DataManager(WebClient client) {
 
@@ -46,9 +49,6 @@ public class DataManager {
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
-            // create cache
-            final Map<String, String> fundNameCache = new HashMap<>();
-
             if(status.equals("error")) {
                 throw new IllegalStateException("Error in response: " + json.getString("error"));
             }
@@ -75,16 +75,7 @@ public class DataManager {
                     JSONObject jsonDonation = donations.getJSONObject(i);
                     String fundId = (String) jsonDonation.get("fund");
 
-                    // query cache
-                    String fund = fundNameCache.get(fundId);
-                    // cache miss
-                    if (fund == null) {
-                        fund = getFundName(fundId);
-                        // update cache
-                        if (fund != null) {
-                            fundNameCache.put(fundId, fund);
-                        }
-                    }
+                    String fund = getFundName(fundId);
 
                     String date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
@@ -118,7 +109,13 @@ public class DataManager {
         }
 
         try {
+            // query cache
+            String cachedName = fundNameCache.get(id);
+            if (cachedName != null) {
+                return cachedName;
+            }
 
+            // cache miss
             Map<String, Object> map = new HashMap<>();
             map.put("id", id);
             String response = client.makeRequest("/findFundNameById", map);
@@ -134,6 +131,10 @@ public class DataManager {
             }
             if (status.equals("success")) {
                 String name = (String)json.get("data");
+
+                // update cache
+                fundNameCache.put(id, name);
+
                 return name;
             }
             else return "Unknown Fund";
