@@ -8,10 +8,11 @@ Q2.
 
 Task 2.1
 
-The method attemptLogin of the class DataManager of Contributor app  was changed. A cache using HashMap was added. Before looping through the funds, the cache is initialized. For each contributor of a fund:
-Check to see whether the contributor name in the cache
-Yes -> Use this name
-No -> Call the getContributorName method and add the returned name to the cache
+The method `getContributorName` of the class  `DataManager` was changed. A cache using `ConcurrentHashMap` was added. When the class is created, the cache is initialized. For each contributor of a fund:
+
+* Check to see whether the contributor name in the cache
+  * Yes -> Use this name
+  * No -> Send http request and add the returned name to the cache
 
 
 Task 2.2
@@ -27,10 +28,11 @@ The displayFund method was also modified in the userInterface which allows the u
 
 Task 2.4
 
-The method attemptLogin of the class DataManager was changed. A cache using HashMap was added. Before looping through the donations, the cache is initialized. For each fund of a donation:
-Check to see whether the fund name in the cache
-Yes -> Use this name
-No -> call the getFundName method and add the returned name to the cache
+The method `getFundName` of the class  `DataManager` was changed. A cache using `ConcurrentHashMap` was added. When the class is created, the cache is initialized. For each fund of a donation:
+
+* Check to see whether the fund name in the cache
+  * Yes -> Use this name
+  * No -> Send http request and add the returned name to the cache
 
 Task 2.5
 
