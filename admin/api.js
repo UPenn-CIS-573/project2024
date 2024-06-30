@@ -37,7 +37,6 @@ app.use('/findOrgByLoginAndPassword', (req, res) => {
 	// try decrypt the password
 	try {
 		var password = decrypt(modifiedString);
-		console.log(req.query.login, password);
 		var query = {"login" : req.query.login, "password" : password };
 		
 		Organization.findOne( query, (err, result) => {
@@ -55,6 +54,67 @@ app.use('/findOrgByLoginAndPassword', (req, res) => {
 	} catch (err) {
 		res.json({ "status": "error", "data" : "Decode Fail"});
 	}
+});
+
+/*
+Handle the form submission to create a new organization
+*/
+app.use('/createOrg', (req, res) => {
+
+	// try to search for existing organization
+	var query = {"login" : req.query.login, "password" : req.query.password };
+
+	Organization.findOne( query, (err, result) => {
+		if (err) {
+			res.json({ "status": "error", "data" : err});
+		}
+		else if (!result){
+			// create a new organization
+			var org = new Organization({
+				login: req.query.login,
+				password: req.query.password,
+				name: req.query.name,
+				description: req.query.description,
+				funds: []
+			});
+
+			org.save( (err) => {
+				if (err) {
+					res.json({ "status": "error", "data" : err})
+				}
+				else {
+					//console.log(org);
+					res.json({ "status" : "success", "data" : org});
+				}
+			});
+		}
+		else {
+			res.json({ "status" : "fail", "data" : "Organization already exists with that login and password"});
+		}
+	});
+});
+
+/*
+Handle the form submission to update an org
+*/
+app.use('/updateOrg', (req, res) => {
+
+	var filter = {"_id" : req.query.id };
+
+	var update = { "login" : req.query.login, "password" : req.query.password, "name" : req.query.name, "description" : req.query.description };
+
+	var action = { "$set" : update };
+
+	Organization.findOneAndUpdate( filter, action, { new : true }, (err, result) => {
+		if (err) {
+			res.json({"status": "error"});
+		}
+		else {
+			//console.log(result);
+			res.json({"status": "success"});
+		}
+	});
+
 });
 
 /*

@@ -102,13 +102,12 @@ public class DataManager {
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
 
-
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
 				String name = (String)data.get("name");
 				String description = (String)data.get("description");
-				Organization org = new Organization(fundId, name, description);
+				Organization org = new Organization(fundId, login, password, name, description);
 
 				JSONArray funds = (JSONArray)data.get("funds");
 				Iterator it = funds.iterator();
@@ -176,6 +175,159 @@ public class DataManager {
 		catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	/**
+	 * Attempt to log the user into an Organization account using the login and password.
+	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
+	 * @return an Organization object if successful; null if unsuccessful
+	 */
+	public Organization registerOrganization(String login, String password, String name, String description) {
+		Map<String, Object> map = new HashMap<>();
+
+		// Input Defensive Programming
+		if (login == null || login.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Login cannot be empty.");
+		}
+
+		if (password == null || password.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Password cannot be empty.");
+		}
+
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Name cannot be empty.");
+		}
+
+		if (description == null || description.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Description cannot be empty.");
+		}
+
+		//check illegal login value
+		if (login.matches("\\w+")){
+			map.put("login", login);
+		} else {
+			throw new IllegalArgumentException("[Invalid login ID] Login must be alphanumeric.");
+		}
+
+		//check illegal password value
+		if (password.matches("\\w+")){
+			map.put("password", password);
+		} else {
+			throw new IllegalArgumentException("[Invalid password] Password must be alphanumeric.");
+		}
+
+		map.put("name", name);
+		map.put("description", description);
+
+		// create organization
+		String response = client.makeRequest("/createOrg", map);
+
+		// connection fails
+		if (response == null) {
+			throw new IllegalStateException("Response is null");
+		}
+
+		try{
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String)json.get("status");
+
+			if (status.equals("success")) {
+				JSONObject data = (JSONObject)json.get("data");
+				String fundId = (String)data.get("_id");
+				Organization org = new Organization(fundId, login, password, name, description);
+				return org;
+			}
+			else {
+				throw new IllegalStateException("[Error in communicating with server] fail to login.");
+			}
+		}
+		catch (ParseException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to login.");
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
+		}
+		catch (NullPointerException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to login.");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public boolean updatePassword(String org_id, String login, String password, String name, String description) {
+		Map<String, Object> map = new HashMap<>();
+
+		// Input Defensive Programming
+		if (org_id == null || org_id.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] ID cannot be empty.");
+		}
+
+		if (password == null || password.isEmpty()) {
+			throw new IllegalArgumentException("[Invalid Input] Password cannot be empty.");
+		}
+
+		//check illegal password value
+		if (password.matches("\\w+")){
+			map.put("password", password);
+		} else {
+			throw new IllegalArgumentException("[Invalid password] Password must be alphanumeric.");
+		}
+
+		//check illegal password value
+		if (login.matches("\\w+")){
+			map.put("login", login);
+		} else {
+			throw new IllegalArgumentException("[Invalid password] Password must be alphanumeric.");
+		}
+
+		map.put("_id", org_id);
+		map.put("name", name);
+		map.put("description", description);
+
+		// create organization
+		String response = client.makeRequest("/updateOrg", map);
+
+		// connection fails
+		if (response == null) {
+			throw new IllegalStateException("Response is null");
+		}
+
+		try{
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String)json.get("status");
+
+			if (status.equals("success")) {
+				return true;
+			}
+			else {
+				throw new IllegalStateException("[Error in communicating with server] fail to update password.");
+			}
+		}
+		catch (ParseException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to update password.");
+		}
+		catch (IllegalStateException e) {
+			// rethrow the exception
+			throw e;
+		}
+		catch (IllegalArgumentException e) {
+			throw e;
+		}
+		catch (NullPointerException e) {
+			throw new IllegalStateException("[Error in communicating with server] fail to update password.");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 

@@ -30,6 +30,7 @@ public class UserInterface {
                 System.out.println("Enter the fund number to see more information.");
             }
             System.out.println("Enter 0 to create a new fund");
+            System.out.println("Enter m to change the password");
             System.out.println("Enter '-1' to logout");
             System.out.println("Enter 'quit' or 'q' to quit");
 
@@ -37,11 +38,45 @@ public class UserInterface {
 
             while (!validInput) {
                 String option = in.nextLine();
-                try {
-                    if (option.equals("quit") || option.equals("q")) {
-                        System.out.println("Goodbye!");
-                        System.exit(0);
+
+                if (option.equals("quit") || option.equals("q")) {
+                    System.out.println("Goodbye!");
+                    System.exit(0);
+                }
+
+                if(option.equalsIgnoreCase("m")){
+                    String current_passwd_enter = getUserInput("Enter your current password: ");
+
+                    String newPassword = getUserInput("Enter your new password: ");
+                    String confirmNewPassword = getUserInput("Confirm your new password: ");
+
+                    // check the current passwd
+                    if (!current_passwd_enter.equals(org.getPasswd())) {
+                        System.out.println("Invalid current password.");
+                        break;
                     }
+
+                    // match passwd
+                    if (!newPassword.equals(confirmNewPassword)) {
+                        System.out.println("Passwords do not match.");
+                        break;
+                    }
+
+                    // update passwd
+                    try {
+                        boolean success = dataManager.updatePassword(org.getId(), org.getLogin(), newPassword, org.getName(), org.getDescription());
+                        if (success) {
+                            System.out.println("Password changed successfully.");
+                        } else {
+                            System.out.println("Failed to change password.");
+                        }
+                    } catch (IllegalStateException e) {
+                        System.out.println("Error changing password: " + e.getMessage());
+                    }
+                    break;
+                }
+
+                try {
                     int opt = Integer.parseInt(option);
 					if (opt == -1){
 						validInput = true;
@@ -202,9 +237,9 @@ public class UserInterface {
 
     }
 
-    private static String userLoginID() {
+    private static String getUserInput(String prompt) {
         Scanner loginScanner = new Scanner(System.in);
-        System.out.print("Enter your login ID: ");
+        System.out.print(prompt);
         String login = loginScanner.nextLine();
         if (login.equals("")) {
             return null;
@@ -212,25 +247,76 @@ public class UserInterface {
         return login;
     }
 
+    private static String userLoginID() {
+        return getUserInput("Enter your login ID: ");
+    }
+
     private static String userLoginPassword() {
-        Scanner loginScanner = new Scanner(System.in);
-        System.out.print("Enter your password: ");
-        String password = loginScanner.nextLine();
-        if (password.equals("")) {
-            return null;
-        }
-        return password;
+        return getUserInput("Enter your password: ");
+    }
+
+    private static String OrgNameInput() {
+        return getUserInput("Enter your Org Name: ");
+    }
+
+    private static String OrgDescriptionInput() {
+        return getUserInput("Enter your Org Description: ");
+    }
+
+    private static String getLoginCommand() {
+        return getUserInput("Type L for [L]ogin or R for [R]egister: ");
     }
 
     public static void main(String[] args) {
 
         DataManager ds = new DataManager(new WebClient("localhost", 3001));
+        String login = null, password = null;
+
+        while(true){
+            String command = getLoginCommand();
+            if(command.equalsIgnoreCase("l")){
+                // break the loop to login
+                break;
+            } else if (command.equalsIgnoreCase("r")){
+                login = userLoginID();
+                password = userLoginPassword();
+                String name = OrgNameInput();
+                String description = OrgDescriptionInput();
+                if (name == null || description == null  || name.equals("") || description.equals("") ||
+                        name == null || password == null || name.equals("") || description.equals("")){
+                    System.out.println("login, password, Name, description cannot be blank.");
+                    continue;
+                }
+
+                try {
+                    Organization org = ds.registerOrganization(login, password, name, description);
+                    if (org == null) {
+                        System.out.println("Registration failed.");
+                    }
+                } catch (IllegalStateException e) {
+                    System.out.println("Error in communicating with server.");
+                    System.out.println(e.getMessage());
+                    break;
+                } catch(IllegalArgumentException e){
+                    // print input error and continue
+                    System.out.println(e.getMessage());
+                    continue;
+                }
+
+                // break the loop to login
+                break;
+            } else {
+                System.out.println("Invalid command.");
+            }
+        }
 
         boolean run = true;
         while (run) {
             while (true) {
-                String login = userLoginID();
-                String password = userLoginPassword();
+                // get user input for login and password
+                if (login == null) { login = userLoginID(); }
+                if (password == null) {  password = userLoginPassword(); }
+
                 if (login == null || password == null) {
                     System.out.println("Login and password cannot be blank.");
                     continue;
@@ -247,9 +333,13 @@ public class UserInterface {
                 } catch (IllegalStateException e) {
                     System.out.println("Error in communicating with server.");
                     System.out.println(e.getMessage());
+
+                    login = null;
+                    password = null;
                     break;
                 }
-				//login again
+
+                //login again
 				System.out.println("Exit[Y]  Login[Enter]:");
 				String in = new Scanner(System.in).nextLine();
 				if (in.equalsIgnoreCase("Y")) {
