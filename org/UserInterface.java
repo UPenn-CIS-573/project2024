@@ -31,6 +31,7 @@ public class UserInterface {
             }
             System.out.println("Enter 0 to create a new fund");
             System.out.println("Enter m to change the password");
+            System.out.println("Enter e to view or edit the organization name and description");
             System.out.println("Enter '-1' to logout");
             System.out.println("Enter 'quit' or 'q' to quit");
 
@@ -76,6 +77,10 @@ public class UserInterface {
                     break;
                 }
 
+                if (option.equalsIgnoreCase("e")){
+                    editOrg();
+                }
+
                 try {
                     int opt = Integer.parseInt(option);
 					if (opt == -1){
@@ -99,6 +104,86 @@ public class UserInterface {
             }
         }
 
+    }
+
+    public void editOrg() {
+
+        System.out.println("Please enter current password");
+        String current_passwd_enter = in.nextLine();
+        if (!current_passwd_enter.equals(org.getPasswd())) {
+            System.out.println("Invalid current password.");
+            return;
+        }
+        // display current org name and description
+        System.out.println("Current organization name: " + org.getName());
+        System.out.println("Current organization description: " + org.getDescription());
+
+        String newName = org.getName();
+        String newDescription = org.getDescription();
+        boolean editContent = false;
+
+        System.out.println("\n Edit organization name? [Y/n]");
+        String editName;
+        while (true) {
+            editName = in.nextLine();
+            if (editName.equals("Y")) {
+                System.out.println("Enter new organization name: ");
+                boolean validname = false;
+                while (!validname) {
+                    newName = in.nextLine();
+                    if (newName.trim().isEmpty()) {
+                        System.out.println("Organization name cannot be blank. Please enter a valid name.");
+                    } else {
+                        validname = true;
+                    }
+                }
+                editContent = true;
+            }
+            else if (editName.equals("n")) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter Y or n.");
+            }
+        }
+
+        System.out.println("\n Edit organization description? [Y/n]");
+        String editDescription;
+        while (true) {
+            editDescription = in.nextLine();
+            if (editDescription.equals("Y")) {
+                System.out.println("Enter new organization description: ");
+                boolean validDescription = false;
+                while (!validDescription) {
+                    newDescription = in.nextLine();
+                    if (newDescription.trim().isEmpty()) {
+                        System.out.println("Organization description cannot be blank. Please enter a valid description.");
+                    } else {
+                        validDescription = true;
+                    }
+                }
+                editContent = true;
+            }
+            else if (editDescription.equals("n")) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter Y or n.");
+            }
+        }
+        if(editContent)
+        {
+            try {
+                boolean success = dataManager.updatePassword(org.getId(), org.getLogin(), org.getPasswd(), newName, newDescription);
+                if (success) {
+                    org.setName(newName);
+                    org.setDescription(newDescription);
+                    System.out.println("Organization updated successfully.");
+                } else {
+                    System.out.println("Failed to update organization.");
+                }
+            } catch (IllegalStateException e) {
+                System.out.println("Error updating organization: " + e.getMessage());
+            }
+        }
     }
 
     public void createFund() {
