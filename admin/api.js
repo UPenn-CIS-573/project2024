@@ -357,10 +357,10 @@ app.use('/allOrgs', (req, res) => {
 		}
 	    }).sort({ 'name': 'asc' });
     });
-app.use('/updateOrgs',(req, res) => {
-	var filter= {"_id": req.body.id};
+app.use('/updateOrgPassword',(req, res) => {
+	var filter= {"_id": req.query.id};
 
-	var update = {"password": req.body.password};
+	var update = {"password": req.query.password};
 
 	var action = {"$set": update};
 
@@ -370,6 +370,22 @@ app.use('/updateOrgs',(req, res) => {
 		}
 		else {
 			res.json({'status': 'success', 'data': result});
+		}
+	});
+});
+
+app.use('/updateOrg', (req, res) => {
+	var filter = {"_id": req.query.id};
+
+	var update = {"name" : req.query.name, "description" : req.query.description};
+
+	var action = {"$set": update};
+
+	Organization.findOneAndUpdate(filter, action, {new: true}, (err, result) => {
+		if (err) {
+			res.json({'status': 'error', 'data': err});
+		} else {
+			res.json({'status': 'success', 'data': err});
 		}
 	});
 });

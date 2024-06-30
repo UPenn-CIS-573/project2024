@@ -27,18 +27,27 @@ public class UserInterface {
 
 					count++;
 				}
-				System.out.println("Enter the fund number to see more information.");
+				System.out.println("-> Enter the fund number to see more information.");
 			} else {
 				System.out.println("No fund available.");
 			}
-			System.out.println("Enter 0 to create a new fund");
-			int option;
+			System.out.println("-> Enter 0 to create a new fund");
+
+			// change organization's password
+			System.out.println("-> Enter 'c' to change your password");
+
+			// modify organization
+			System.out.println("-> Enter 'e' to edit your account information");
+
+			System.out.println("-> Enter 'q' or 'quit' to exit the main menu");
+
+			int option = -1;
 
 			while (true) {
 				if (in.hasNextInt()) {
 					option = in.nextInt();
 					if (option < 0 || option > org.getFunds().size()) {
-						System.out.println("Please enter a valid fund number: ");
+						System.out.println("Please enter a valid fund number or letters indicated above: ");
 						continue;
 					}
 					in.nextLine();
@@ -48,6 +57,14 @@ public class UserInterface {
 					if (input.equals("q") || input.equals("quit")) {
 						System.out.println("Good bye!");
 						return;
+					}else if (input.equals("c")) {
+						in.nextLine();
+						updateOrgPassword();
+						break;
+					}else if (input.equals("e")) {
+						in.nextLine();
+						updateOrg();
+						break;
 					}else{
 						System.out.println("Please enter an Integer:");
 						in.nextLine();
@@ -73,7 +90,7 @@ public class UserInterface {
 						}
 					}
 				}
-			} else {
+			} else if (option > 0) {
 				displayFund(option);
 			}
 		}
@@ -191,13 +208,88 @@ public class UserInterface {
 		in.nextLine();
 	}
 
+	public void updateOrgPassword() {
+		System.out.print("Enter your current password: ");
+		String currentPassword = in.nextLine().trim();
 
+		if (!currentPassword.equals(org.getPassword())) {
+			System.out.println("Your entered current password is incorrect (press Enter to return to the main menu):");
+			in.nextLine();
+			return;
+		}
+		System.out.print("Enter your new password: ");
+		String newPassword1 = in.nextLine().trim();
+		System.out.print("Enter your new password again: ");
+		String newPassword2 = in.nextLine().trim();
+
+		if (!newPassword1.equals(newPassword2)) {
+			System.out.println("The new passwords do not match (press Enter to return to the main menu):");
+			in.nextLine();
+			return;
+		}
+
+		try {
+			String result = dataManager.updateOrgsPassword(org.getId(), newPassword1);
+			if (result.equals("success")) {
+				System.out.println("Password changed successfully (press Enter to return to the main menu):");
+				org.setPassword(newPassword1);
+				in.nextLine();
+			} else {
+				System.out.println("Failed to change password (press Enter to return to the main menu):");
+				in.nextLine();
+			}
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			System.out.println("Error in communicating with server: " + e.getMessage());
+		}
+	}
+	public void updateOrg() {
+		System.out.print("Enter your password: ");
+		String currentPassword = in.nextLine().trim();
+
+		if (!currentPassword.equals(org.getPassword())) {
+			System.out.println("Your entered password is incorrect (press Enter to return to the main menu):");
+			in.nextLine();
+			return;
+		}
+		System.out.println("Enter the new organization name (press Enter to keep the current value): ");
+		System.out.println("Current name is: " + org.getName());
+		String newName = in.nextLine().trim();
+		if (newName.isEmpty()) {
+			newName = org.getName();
+		}
+
+		System.out.println("Enter the new organization description (press Enter to keep the current value): ");
+		System.out.println("Current description is: " + org.getDescription());
+		String newDescription = in.nextLine().trim();
+		if (newDescription.isEmpty()) {
+			newDescription = org.getDescription();
+		}
+
+		try {
+			String result = dataManager.updateOrg(org.getId(), newName, newDescription);
+			if (result.equals("success")) {
+				System.out.println("Organization information updated successfully (press Enter to return to the main menu):");
+				in.nextLine();
+				org.setName(newName);
+				org.setDescription(newDescription);
+			} else {
+				System.out.println("Failed to update organization information (press Enter to return to the main menu):");
+				in.nextLine();
+			}
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			System.out.println("Error in communicating with server: " + e.getMessage());
+		}
+	}
 
 	public static void main(String[] args) {
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
+		Scanner in = new Scanner(System.in);
 
-		String login = args[0];
-		String password = args[1];
+		//User input their own login and password
+		System.out.print("Enter your login:");
+		String login = in.nextLine().trim();
+		System.out.print("Enter your password: ");
+		String password = in.nextLine().trim();
 
 		while (true) {
 			try {
@@ -214,7 +306,6 @@ public class UserInterface {
 			} catch (IllegalArgumentException | IllegalStateException e) {
 				System.out.println(e.getMessage());
 				System.out.println("Would you like to retry? (y/n)");
-				Scanner in = new Scanner(System.in);
 				String retry = in.nextLine().trim().toLowerCase();
 				if (!retry.equals("y")) {
 					System.out.println("Program terminated.");

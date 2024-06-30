@@ -6,7 +6,7 @@ public class Organization {
 	private String id;
 	private String name;
 	private String description;
-	
+	private String password;
 	private List<Fund> funds;
 	
 	public Organization(String id, String name, String description) {
@@ -40,4 +40,18 @@ public class Organization {
 		funds.removeIf(fund -> fund.getId().equals(fundId));
 	}
 
+	public String getPassword() {
+		return this.password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }
