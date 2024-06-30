@@ -357,7 +357,22 @@ app.use('/allOrgs', (req, res) => {
 		}
 	    }).sort({ 'name': 'asc' });
     });
+app.use('/updateOrgs',(req, res) => {
+	var filter= {"_id": req.body.id};
 
+	var update = {"password": req.body.password};
+
+	var action = {"$set": update};
+
+	Organization.findOneAndUpdate(filter, action, {new: true}, (err, result) => {
+		if (err) {
+			res.json({'status': 'error', 'data': err});
+		}
+		else {
+			res.json({'status': 'success', 'data': result});
+		}
+	});
+});
 
 
 /********************************************************/

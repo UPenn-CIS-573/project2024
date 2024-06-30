@@ -197,7 +197,33 @@ public class DataManager {
         }
     }
 
-	public String parseDateFormat(String date) {
+	public String updateOrgsPassword(String OrgId, String Password) {
+		if (OrgId == null || OrgId.isEmpty()) {
+			return "Invalid Organization ID.";
+		}
+		if (Password == null || Password.isEmpty()) {
+			return "Invalid Password.";
+		}
+		try{
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", OrgId);
+			map.put("password", Password);
+			String response = client.makeRequest("/updateOrgs", map);
+			if (response == null) {
+				throw new IllegalStateException("Error in communicating with server");
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			String status = (String) json.get("status");
+
+			return status.equals("success")? "Password update successfully": "Failed to update password";
+		} catch (Exception e) {
+			return "Error in communicating with server";
+		}
+	}
+
+	// helper function
+	private String parseDateFormat(String date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 		Date d = null;
 		try {
