@@ -76,30 +76,31 @@ public class UserInterface {
                     }
                     break;
                 }
-
-                if (option.equalsIgnoreCase("e")){
+                else if (option.equalsIgnoreCase("e")){
                     editOrg();
+                    break;
                 }
-
-                try {
-                    int opt = Integer.parseInt(option);
-					if (opt == -1){
-						validInput = true;
-						logout = true;
-						break;
-					}
-                    if (opt >= 0 && opt <= org.getFunds().size()) {
-                        validInput = true;
-                        if (opt == 0) {
-                            createFund();
-                        } else {
-                            displayFund(opt);
+                else {
+                    try {
+                        int opt = Integer.parseInt(option);
+                        if (opt == -1) {
+                            validInput = true;
+                            logout = true;
+                            break;
                         }
-                    } else {
-                        System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+                        if (opt >= 0 && opt <= org.getFunds().size()) {
+                            validInput = true;
+                            if (opt == 0) {
+                                createFund();
+                            } else {
+                                displayFund(opt);
+                            }
+                        } else {
+                            System.out.println("Invalid input. Please enter a number between 0 and " + org.getFunds().size());
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Please enter a valid number or 'q' to quit.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid input. Please enter a valid number or 'q' to quit.");
                 }
             }
         }
@@ -138,6 +139,7 @@ public class UserInterface {
                     }
                 }
                 editContent = true;
+                break;
             }
             else if (editName.equals("n")) {
                 break;
@@ -162,6 +164,7 @@ public class UserInterface {
                     }
                 }
                 editContent = true;
+                break;
             }
             else if (editDescription.equals("n")) {
                 break;
