@@ -6,12 +6,16 @@ public class Organization {
 	private String id;
 	private String name;
 	private String description;
+	private String login;
+	private String passwd;
 	
 	private List<Fund> funds;
 	
-	public Organization(String id, String name, String description) {
+	public Organization(String id, String login, String passwd, String name, String description) {
 		this.id = id;
 		this.name = name;
+		this.login = login;
+		this.passwd = passwd;
 		this.description = description;
 		funds = new LinkedList<>();
 	}
@@ -24,9 +28,13 @@ public class Organization {
 		return name;
 	}
 
+	public String getLogin() { return login; }
+
 	public String getDescription() {
 		return description;
 	}
+
+	public String getPasswd() { return passwd; }
 
 	public List<Fund> getFunds() {
 		return funds;
@@ -34,6 +42,14 @@ public class Organization {
 	
 	public void addFund(Fund fund) {
 		funds.add(fund);
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 

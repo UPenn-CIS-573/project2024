@@ -6,28 +6,116 @@ const {Fund} = require('./DbConfig.js');
 const {Contributor} = require('./DbConfig.js');
 const {Donation} = require('./DbConfig.js');
 
+const fs = require('fs');
+const crypto = require('crypto');
+
+// Load the private key from the file
+const privateKey = fs.readFileSync('private_key.pem', { encoding: 'utf-8' });
+
+// Decrypt data function
+function decrypt(encryptedData) {
+	const buffer = Buffer.from(encryptedData, 'base64');
+	const decrypted = crypto.privateDecrypt(
+	  {
+		key: privateKey,
+		padding: crypto.constants.RSA_PKCS1_PADDING,
+	  },
+	  buffer,
+	);
+	return decrypted.toString('utf8');
+  }
 
 /*
 Return an org with login specified as req.query.login and password specified as 
 req.query.password; this essentially acts as login for organizations
 */
 app.use('/findOrgByLoginAndPassword', (req, res) => {
+	// Use SHA256 to decode the password
+	// replace " " with "+"
+	let modifiedString = req.query.password.replace(/\s/g, "+");
+	
+	// try decrypt the password
+	try {
+		var password = decrypt(modifiedString);
+		var query = {"login" : req.query.login, "password" : password };
+		
+		Organization.findOne( query, (err, result) => {
+			if (err) {
+				res.json({ "status": "error", "data" : err});
+			}
+			else if (!result){
+				res.json({ "status": "login failed" });
+			}
+			else {
+				//console.log(result);
+				res.json({ "status" : "success", "data" : result});
+			}
+			});
+	} catch (err) {
+		res.json({ "status": "error", "data" : "Decode Fail"});
+	}
+});
 
+/*
+Handle the form submission to create a new organization
+*/
+app.use('/createOrg', (req, res) => {
+
+	// try to search for existing organization
 	var query = {"login" : req.query.login, "password" : req.query.password };
-    
+
 	Organization.findOne( query, (err, result) => {
 		if (err) {
-		    res.json({ "status": "error", "data" : err});
+			res.json({ "status": "error", "data" : err});
 		}
 		else if (!result){
-		    res.json({ "status": "login failed" });
+			// create a new organization
+			var org = new Organization({
+				login: req.query.login,
+				password: req.query.password,
+				name: req.query.name,
+				description: req.query.description,
+				funds: []
+			});
+
+			org.save( (err) => {
+				if (err) {
+					res.json({ "status": "error", "data" : err})
+				}
+				else {
+					//console.log(org);
+					res.json({ "status" : "success", "data" : org});
+				}
+			});
 		}
 		else {
-		    //console.log(result);
-		    res.json({ "status" : "success", "data" : result});
+			res.json({ "status" : "fail", "data" : "Organization already exists with that login and password"});
 		}
-	    });
-    });
+	});
+});
+
+/*
+Handle the form submission to update an org
+*/
+app.use('/updateOrg', (req, res) => {
+
+	var filter = {"_id" : req.query.id };
+
+	var update = { "login" : req.query.login, "password" : req.query.password, "name" : req.query.name, "description" : req.query.description };
+
+	var action = { "$set" : update };
+
+	Organization.findOneAndUpdate( filter, action, { new : true }, (err, result) => {
+		if (err) {
+			res.json({"status": "error"});
+		}
+		else {
+			//console.log(result);
+			res.json({"status": "success"});
+		}
+	});
+
+});
 
 /*
 Create a new fund

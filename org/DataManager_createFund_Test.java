@@ -38,4 +38,37 @@ public class DataManager_createFund_Test {
 		
 	}
 
+	// test fail creation
+	@Test
+	public void testFailedCreation() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				return "{\"status\":\"fail\",\"message\":\"error\"}";
+
+			}
+
+		});
+
+		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+		assertNull(f);
+	}
+
+	// test exception creation
+	@Test
+	public void testExceptionCreation() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				throw new RuntimeException("error");
+			}
+
+		});
+
+		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+		assertNull(f);
+	}
+
 }
